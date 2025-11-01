@@ -1,20 +1,21 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-
 
 public class MissionManager : MonoBehaviour
 {
     [SerializeField] private RectTransform MinimapUIObject;
-    [SerializeField] private MissionSO InitialMission;    
+    [SerializeField] private MissionSO InitialMission;
+    [SerializeField] private MissionOverlayController MissionOverlay;
 
     // we assume that the minimap camera is a child of the minimap object
     [SerializeField] private Camera MinimapCamera;
 
-    private Mission? CurrentMission;
-    
-    private RunOnce? _runonce;
-    private RunOnce _init;
+    Mission? CurrentMission;
+    RunOnce? _runonce;
+    RunOnce _init;
 
     public void Awake()
     {
@@ -57,6 +58,10 @@ public class MissionManager : MonoBehaviour
         }
 
         CurrentMission.OnMissionCompleted += MissionCompleteHandler;
+        CurrentMission.OnTaskStarted += TaskStartedHandler;
+        CurrentMission.OnTaskCompleted += TaskCompletedHandler;
+
+        MissionOverlay.AddMission(CurrentMission);
         CurrentMission.StartMission();
     }
 
@@ -77,5 +82,15 @@ public class MissionManager : MonoBehaviour
         }
 
         CurrentMission = null;
+    }
+
+    void TaskStartedHandler(Task task)
+    {
+        MissionOverlay.AddTask(task);
+    }
+
+    void TaskCompletedHandler(Task task)
+    {
+        MissionOverlay.CompleteTask(task);
     }
 }
