@@ -344,12 +344,8 @@ public class BoatDriver : MonoBehaviour
             _disabledMovementB.enabled = true;
         }
 
-        //_playerRoot = null;
-        //_playerCamera = null;
         _disabledMovementA = null;
         _disabledMovementB = null;
-        //_originalCameraParent = null;
-        //_originalPlayerParent = null;
 
         if (_motorSound != null && _motorSound.isPlaying)
         {

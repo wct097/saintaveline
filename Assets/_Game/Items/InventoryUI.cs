@@ -81,14 +81,14 @@ public class InventoryUI : MonoBehaviour
         _transferDropdown.AddOptions(listItems.OrderBy(x => x).ToList());
     }
 
-    //public void Update()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.Escape))
-    //    {
-    //        if (!IsActive) return;
-    //        CloseDialog();
-    //    }
-    //}
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!IsActive) return;
+            CloseDialog();
+        }
+    }
 
     public void ShowInventory(CharacterEntity entity)
     {
@@ -153,7 +153,7 @@ public class InventoryUI : MonoBehaviour
         }
 
         _selectedCount = 0;
-        //_inventoryDlg.enabled = true;
+        _inventoryDlg.enabled = true;
     }
 
     private void OnToggleClicked(string itemName, bool isOn)
@@ -194,7 +194,7 @@ public class InventoryUI : MonoBehaviour
 
                     BottomTypewriter.Instance.Enqueue(msg);
                     CodexOverlayController.Instance.ToggleCodexOverlay(false);
-                    //CloseDialog();
+                    CloseDialog();
                     return;
                 }
             }
