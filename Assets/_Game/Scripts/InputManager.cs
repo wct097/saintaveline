@@ -8,7 +8,8 @@ public enum InputState
     InventoryDlg,
     CodexDlg,
     MapLabeling,
-    BoatDriving
+    BoatDriving,
+    PauseMenu
 }
 
 public class InputManager : MonoBehaviour
@@ -29,9 +30,9 @@ public class InputManager : MonoBehaviour
         Instance = this;
     }
 
-    public void RegisterInputHandler(InputState area, Action handler)
+    public void RegisterInputHandler(InputState state, Action handler)
     {
-        _inputHandlers[area] = handler;
+        _inputHandlers[state] = handler;
     }
 
     public void SetInputState(InputState newState)
@@ -49,7 +50,7 @@ public class InputManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I) 
+        if (Input.GetKeyDown(KeyCode.I)
             && CurrentState == InputState.Gameplay)
         {
             if (InventoryUI.Instance.IsActive)
@@ -85,9 +86,25 @@ public class InputManager : MonoBehaviour
                 CodexOverlayController.Instance.OpenCodexOverlay(playerEntity);
             }
         }
+        else if (Input.GetKeyDown(KeyCode.Comma) 
+            && CurrentState == InputState.Gameplay)
+        {
+            MapLabeler.Instance.Init();
+            this.SetInputState(InputState.MapLabeling);
+        }
         else if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (CurrentState == InputState.CodexDlg)
+            if (CurrentState == InputState.Gameplay)
+            {
+                PauseMenuController.Instance.PauseGame();
+                this.SetInputState(InputState.PauseMenu);
+            }
+            else if (CurrentState == InputState.PauseMenu)
+            {
+                PauseMenuController.Instance.ResumeGame();
+                this.SetInputState(InputState.Gameplay);
+            }
+            else if (CurrentState == InputState.CodexDlg)
             {
                 if (!CodexOverlayController.Instance.IsActive)
                 {
@@ -97,11 +114,6 @@ public class InputManager : MonoBehaviour
                 this.SetInputState(InputState.Gameplay);
                 CodexOverlayController.Instance.ToggleCodexOverlay(false);
             }
-        }
-        else if (Input.GetKeyDown(KeyCode.Comma) 
-            && CurrentState == InputState.Gameplay)
-        {
-            this.SetInputState(InputState.MapLabeling);
         }
 
         _currentHandler?.Invoke();

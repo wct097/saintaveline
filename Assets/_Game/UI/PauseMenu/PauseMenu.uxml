@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Root" class="pm-root">
+        <ui:VisualElement class="pm-panel" style="align-items: center; justify-content: center; height: 255px;">
+            <ui:Button name="btnResume" text="Resume" class="pm-button" style="width: 50%; align-self: center; align-items: auto;" />
+            <ui:Button name="btnMainMenu" text="Main Menu" class="pm-button" style="width: 50%; align-self: center;" />
+            <ui:Button name="btnSettings" text="Settings" enabled="true" class="pm-button" style="width: 50%; align-self: center; visibility: hidden;" />
+            <ui:Button name="btnExit" text="Exit" class="pm-button" style="width: 50%; align-self: center;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
