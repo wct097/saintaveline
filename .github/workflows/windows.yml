@@ -1,0 +1,128 @@
+name: windows
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/windows.yml
+      - Assets/**
+jobs:
+  discord-notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord Workflow Start Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        if: ${{ env.DISCORD_WEBHOOK != '' && env.DISCORD_WEBHOOK != 'disabled' }}
+        uses: Ilshidur/action-discord@0.3.2
+        with:
+          args: "💬 Starting 'StandaloneWindows64' CI workflow for `${{ github.repository }}` on ${{ github.ref_type }}: `${{ github.ref_name }}`. See progress at https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
+
+  build-windows:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform: [StandaloneWindows64]
+        
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
+      - name: Unity Cache
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      # - name: Restore LFS cache
+      #   uses: actions/cache@v4
+      #   id: lfs-cache
+      #   with:
+      #     path: .git/lfs
+      #     key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      # - name: Free up disk space
+      #   run: |
+      #     sudo rm -rf /usr/share/dotnet
+      #     sudo rm -rf /opt/ghc
+      #     sudo rm -rf "/usr/local/share/boost"
+      #     sudo rm -rf "$AGENT_TOOLSDIRECTORY"          
+
+      - name: Build Unity Project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneWindows64
+          versioning: Semantic
+          buildName: ${{ github.event.repository.name }}-${{ steps.version.outputs.version }}
+
+      # - name: Discord Build Notification
+      #   env:
+      #     DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      #   if: ${{ env.DISCORD_WEBHOOK != '' && env.DISCORD_WEBHOOK != 'disabled' }}
+      #   uses: Ilshidur/action-discord@0.3.2
+      #   with:
+      #     args: "✅ Successfully built `${{ github.repository }}` on ${{ github.ref_type }}: `${{ github.ref_name }}` for WebGL, deploying..."
+
+      - name: Discord Build Failure Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        if: ${{ failure() && env.DISCORD_WEBHOOK != '' && env.DISCORD_WEBHOOK != 'disabled' }}
+        uses: Ilshidur/action-discord@0.3.2
+        with:
+          args: "❗️ Build failed for `${{ github.repository }}` on ${{ github.ref_type }}: `${{ github.ref_name }}`"
+
+      - name: Archive Windows build artifacts
+        shell: powershell
+        run: |
+          mkdir -p artifacts/${{ github.event.repository.name }}-${{ steps.version.outputs.version }}
+          cp -r build/StandaloneWindows64/* artifacts/${{ github.event.repository.name }}-${{ steps.version.outputs.version }}/
+          cd artifacts
+          Compress-Archive -Path ${{ github.event.repository.name }}-${{ steps.version.outputs.version }}/* -DestinationPath ../windows-build.zip -CompressionLevel Optimal
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-${{ github.sha }}
+          path: windows-build.zip
+      
+      # - name: Upload Artifacts
+      #   uses: actions/upload-artifact@v3
+      #   if: "env.BUILD_TYPE == 'Release'"
+      #   with:
+      #     name: windows_artficats
+      #     path: ${{github.workspace}}/build/tooter-*.exe
+
+      # - name: 📂 FTP Installer
+      #   uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      #   if: "env.BUILD_TYPE == 'Release' && github.ref == 'refs/heads/master'"
+      #   with:
+      #     server: ${{ secrets.FTP_SERVER }}
+      #     username: ${{ secrets.FTP_USERNAME }}
+      #     password: ${{ secrets.FTP_PASSWORD }}
+      #     server-dir: /public_html/downloads/
+      #     local-dir: ${{github.workspace}}/build/stage/
+      #     exclude: saintaveline-*.zip
