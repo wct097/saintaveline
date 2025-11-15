@@ -108,10 +108,10 @@ public class InventoryUI : MonoBehaviour
             GameObject newItem = Instantiate(_itemPrefab, _contentPanel);
             newItem.SetActive(true);
 
-            TextMeshProUGUI text = newItem.GetComponentInChildren<TextMeshProUGUI>();
-            if (text != null)
+            var itemName = newItem.transform.Find("ItemName");            
+            if (itemName != null && itemName.TryGetComponent<TextMeshProUGUI>(out var itemNameText))
             {
-                text.text = item.ItemData.ItemName;
+                itemNameText.text = item.ItemData.ItemName;
             }
 
             InventoryItemHelper helper = newItem.GetComponentInChildren<InventoryItemHelper>();
@@ -123,6 +123,7 @@ public class InventoryUI : MonoBehaviour
                 }
                 
                 helper.ItemEntity = item;
+                helper.ShortcutText.text = (_itemObjects.Count + 1).ToString();
             }
 
             Toggle itemToggle = newItem.GetComponentInChildren<Toggle>();
@@ -168,6 +169,7 @@ public class InventoryUI : MonoBehaviour
         SetButtonsState();
     }
 
+    // this button will turn into "Unequip" if the selected item is the currently equipped item
     private void OnEquipButtonClicked()
     {
         if (_selectedCount != 1) return;
@@ -187,7 +189,7 @@ public class InventoryUI : MonoBehaviour
                     }
                     else
                     {
-                        _owner.SetEquippedItem(tag.ItemEntity);
+                        _owner.SetEquippedItem(tag.ItemEntity, autoUnequip: true);
                         msg = $"Item '{tag.ItemEntity.ItemData!.ItemName}' equipped.";
                     }
 

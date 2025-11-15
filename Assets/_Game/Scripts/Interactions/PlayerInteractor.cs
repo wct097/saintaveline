@@ -155,6 +155,10 @@ public class PlayerInteractor : MonoBehaviour
             _playerEntity!.AddItemToInventory(itemEntity);
             BottomTypewriter.Instance.Enqueue("Added item '" + itemEntity.ItemData!.ItemName + "' to inventory.");
         }
+        else if (Input.GetKeyDown(KeyCode.E))
+        {
+            _playerEntity!.PrimaryAction();
+        }
         else if (Input.GetKeyDown(KeyCode.F))
         {
             if (FocusedObject != null)
@@ -175,13 +179,62 @@ public class PlayerInteractor : MonoBehaviour
                 BottomTypewriter.Instance.Enqueue("Added item '" + itemEntity.ItemData!.ItemName + "' to inventory.");
             }
         }
-        else if (Input.GetMouseButtonDown(0))
+
+        // mouse interaction
+        if (Input.GetMouseButtonDown(0))
         {
             _playerEntity!.Attack();
         }
-        else if (Input.GetMouseButtonDown(1))
+        
+        if (Input.GetMouseButtonDown(1))
         {
             _playerEntity!.ThrowEquippedItem();
+        }
+
+        CheckInventorySlots();
+    }
+
+    private void CheckInventorySlots()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            _playerEntity!.EquipItem(0);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            _playerEntity!.EquipItem(1);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            _playerEntity!.EquipItem(2);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            _playerEntity!.EquipItem(3);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            _playerEntity!.EquipItem(4);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            _playerEntity!.EquipItem(5);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            _playerEntity!.EquipItem(6);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            _playerEntity!.EquipItem(7);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            _playerEntity!.EquipItem(8);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            _playerEntity!.EquipItem(9);
         }
     }
 }

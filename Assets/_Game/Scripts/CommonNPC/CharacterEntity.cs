@@ -86,7 +86,7 @@ public class CharacterEntity : GameEntity
         _inventory.Remove(item);
     }
 
-    public ItemEntity? SetEquippedItem(ItemEntity item)
+    public ItemEntity? SetEquippedItem(ItemEntity item, bool autoUnequip = false)
     {
         if (item.ItemData == null)
         {
@@ -95,9 +95,15 @@ public class CharacterEntity : GameEntity
 
         if (_equippedItem != null)
         {
-            // TODO: auto store an equip item, and if the item is not 
-            // storable, then show a message to the player.
-            throw new System.NotImplementedException("EquippedItem: Unequipping an item when one is already equipped is not implemented.");
+            if (autoUnequip)
+            {
+                _equippedItem.OnUnEquipped();
+                this.AddItemToInventory(_equippedItem);
+            }
+            else
+            {
+                throw new System.Exception($"EquippedItem: Character '{name}' already has an equipped item '{_equippedItem.name}'.");
+            }
         }
 
         _equippedItem = item;
@@ -152,5 +158,30 @@ public class CharacterEntity : GameEntity
         {
             _equippedItem.Attack();
         }
+    }
+
+    public void PrimaryAction()
+    {
+        if (_equippedItem != null)
+        {
+            _equippedItem.PrimaryAction();
+        }
+    }
+
+    public void EquipItem(int slot)
+    {
+        if (slot < 0)
+        {
+            throw new System.Exception($"EquipItem: Slot {slot} is out of range for character '{name}' inventory.");
+        }
+
+        if (slot >= _inventory.Count)
+        {
+            // slow it empty. ignore
+            return;
+        }
+
+        var item = _inventory[slot];
+        SetEquippedItem(item, autoUnequip: true);
     }
 }
