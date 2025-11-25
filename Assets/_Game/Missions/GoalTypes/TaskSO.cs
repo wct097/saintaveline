@@ -4,8 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewGoal", menuName = "Game/Goals/Goal")]
 public class TaskSO : ScriptableObject
 {
-    public string Name;
-    [TextArea] public string Description;
+    public string Name = null!;
+    [TextArea] public string Description = null!;
     public string StartMessage;
     public string SuccessMessage;
     public string FailureMessage;
