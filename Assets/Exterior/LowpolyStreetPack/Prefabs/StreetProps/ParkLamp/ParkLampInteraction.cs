@@ -27,7 +27,6 @@ public class ParkLampInteraction : MonoBehaviour
     {
         if (_timeSinceLookedAway <= 0f)
         {
-            Debug.Log("ParkLampInteraction: LookedAway triggered, rotating object.");
             _objectToRotate.transform.Rotate(0, 0, 90);
             _timeSinceLookedAway = Random.Range(_minCooldownTime, _maxCooldownTime);
         }

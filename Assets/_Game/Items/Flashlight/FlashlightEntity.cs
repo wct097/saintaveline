@@ -9,6 +9,7 @@ public class FlashlightEntity : ItemEntity
 
     protected override void Awake()
     {
+        base.Awake();
         _click = this.GetComponent<AudioSource>();
         if (_click == null)
         {
