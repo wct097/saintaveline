@@ -124,9 +124,10 @@ public class PlayerInteractor : MonoBehaviour
 
     void ProcessInput()
     {
+        // pick an item up and equip it
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (_playerEntity!.EquippedItem == null)
+            if (_playerEntity!.EquippedItem2 == null)
             {
                 if (FocusedObject == null) return;
 
@@ -172,10 +173,10 @@ public class PlayerInteractor : MonoBehaviour
                 _playerEntity!.AddItemToInventory(itemEntity);
                 BottomTypewriter.Instance.Enqueue("Added item '" + itemEntity.ItemData!.ItemName + "' to inventory.");
             }
-            else if (_playerEntity!.EquippedItem != null)
+            else if (_playerEntity!.EquippedItem2 != null)
             {
-                var itemEntity = _playerEntity!.EquippedItem;
-                _playerEntity!.AddItemToInventory(_playerEntity!.EquippedItem!);
+                var itemEntity = _playerEntity!.EquippedItem2;
+                _playerEntity!.AddItemToInventory(_playerEntity!.EquippedItem2!);
                 BottomTypewriter.Instance.Enqueue("Added item '" + itemEntity.ItemData!.ItemName + "' to inventory.");
             }
         }
@@ -198,43 +199,43 @@ public class PlayerInteractor : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            _playerEntity!.EquipItem(0);
+            _playerEntity!.ToggleEquippedItem(0);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            _playerEntity!.EquipItem(1);
+            _playerEntity!.ToggleEquippedItem(1);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            _playerEntity!.EquipItem(2);
+            _playerEntity!.ToggleEquippedItem(2);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            _playerEntity!.EquipItem(3);
+            _playerEntity!.ToggleEquippedItem(3);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            _playerEntity!.EquipItem(4);
+            _playerEntity!.ToggleEquippedItem(4);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha6))
         {
-            _playerEntity!.EquipItem(5);
+            _playerEntity!.ToggleEquippedItem(5);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha7))
         {
-            _playerEntity!.EquipItem(6);
+            _playerEntity!.ToggleEquippedItem(6);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha8))
         {
-            _playerEntity!.EquipItem(7);
+            _playerEntity!.ToggleEquippedItem(7);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha9))
         {
-            _playerEntity!.EquipItem(8);
+            _playerEntity!.ToggleEquippedItem(8);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha0))
         {
-            _playerEntity!.EquipItem(9);
+            _playerEntity!.ToggleEquippedItem(9);
         }
     }
 }
