@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// This script is attached to the Main Camera which is a child of the Player object.
 /// 
-/// When a player looks at an interactable object, aka and Item, within a certain 
+/// When a player looks at an interactable object, aka an Item, within a certain 
 /// range, this script is responsible for detecting if the player is looking at an 
 /// interactable object, displaying the help text, and invoking the Item's
 /// interaction menu.
@@ -61,7 +61,7 @@ public class PlayerInteractor : MonoBehaviour
                     FocusedObject = hit.collider.gameObject;
                 }
 
-                if (Input.GetKeyDown(KeyCode.E))
+                if (Input.GetKeyDown(KeyCode.Q))
                 {
                     _currentFocus!.Interact();
                 }
@@ -125,7 +125,7 @@ public class PlayerInteractor : MonoBehaviour
     void ProcessInput()
     {
         // pick an item up and equip it
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             if (_playerEntity!.EquippedItem2 == null)
             {
@@ -156,7 +156,7 @@ public class PlayerInteractor : MonoBehaviour
             _playerEntity!.AddItemToInventory(itemEntity);
             BottomTypewriter.Instance.Enqueue("Added item '" + itemEntity.ItemData!.ItemName + "' to inventory.");
         }
-        else if (Input.GetKeyDown(KeyCode.E))
+        else if (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(2)) 
         {
             _playerEntity!.PrimaryAction();
         }

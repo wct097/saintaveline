@@ -2,57 +2,68 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DrawerMech : MonoBehaviour 
+public class DrawerMech : MonoBehaviour, IInteractable
 {
+    public Vector3 OpenPosition, ClosePosition;
 
-	public Vector3 OpenPosition, ClosePosition;
+    float _moveSpeed;
+    float _lerpTimer;
+    public bool _drawerBool;
 
-	float moveSpeed;
-
-    float lerpTimer;
-
-    public bool drawerBool;
-
-    
-
-	void Start()
-	{
-        drawerBool = false;
-	}
-		
-	void OnTriggerStay(Collider col)
-	{
-		if(col.gameObject.tag == ("Player") && Input.GetKeyDown(KeyCode.E))
-		{
-			if (!drawerBool)
-                drawerBool = true;
-			else
-                drawerBool = false;
-		}
-	}
-
-	void Update()
-	{
-
-        if (drawerBool)
+    void Start()
+    {
+        _drawerBool = false;
+    }
+        
+    void OnTriggerStay(Collider col)
+    {
+        if (col.gameObject.tag == ("Player") && Input.GetKeyDown(KeyCode.Q))
         {
-            moveSpeed = +1f;
-
-            lerpTimer = Mathf.Clamp(lerpTimer + Time.deltaTime * moveSpeed, 0f, 1f);
-
-            transform.localPosition = Vector3.Lerp(ClosePosition, OpenPosition, lerpTimer);
+            _drawerBool = !_drawerBool;
         }
-            
-        else
-        {
-            moveSpeed = -1f;
-
-            lerpTimer = Mathf.Clamp(lerpTimer + Time.deltaTime * moveSpeed, 0f, 1f);
-
-            transform.localPosition = Vector3.Lerp(ClosePosition, OpenPosition, lerpTimer);
-        }
-
     }
 
+    void Update()
+    {
+        if (_drawerBool)
+        {
+            _moveSpeed = +1f;
+            _lerpTimer = Mathf.Clamp(_lerpTimer + Time.deltaTime * _moveSpeed, 0f, 1f);
+            transform.localPosition = Vector3.Lerp(ClosePosition, OpenPosition, _lerpTimer);
+        }
+        else
+        {
+            _moveSpeed = -1f;
+            _lerpTimer = Mathf.Clamp(_lerpTimer + Time.deltaTime * _moveSpeed, 0f, 1f);
+            transform.localPosition = Vector3.Lerp(ClosePosition, OpenPosition, _lerpTimer);
+        }
+    }
+
+    string IInteractable.HoverText
+    {
+        get
+        {
+            if (_drawerBool)
+            {
+                return "Press [Q] to close";
+            }
+
+            return "Press [Q] to open";
+        }
+    }
+    List<InteractionData> IInteractable.Interactions => new List<InteractionData>();
+
+    void IInteractable.OnFocus()
+    {
+    }
+
+    void IInteractable.OnDefocus()
+    {
+    }
+
+    void IInteractable.Interact(GameEntity interactor)
+    {
+        this._drawerBool = !this._drawerBool;
+    }
 }
 
