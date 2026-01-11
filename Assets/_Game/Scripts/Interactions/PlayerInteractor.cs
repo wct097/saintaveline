@@ -60,11 +60,6 @@ public class PlayerInteractor : MonoBehaviour
 
                     FocusedObject = hit.collider.gameObject;
                 }
-
-                if (Input.GetKeyDown(KeyCode.Q))
-                {
-                    _currentFocus!.Interact();
-                }
             }
             else
             {
@@ -179,6 +174,11 @@ public class PlayerInteractor : MonoBehaviour
                 _playerEntity!.AddItemToInventory(_playerEntity!.EquippedItem2!);
                 BottomTypewriter.Instance.Enqueue("Added item '" + itemEntity.ItemData!.ItemName + "' to inventory.");
             }
+        }
+        else if (Input.GetKeyDown(KeyCode.Q) && _currentFocus != null)
+        {
+            InputManager.Instance.SetInputState(InputState.InteractionMenu);
+            _currentFocus!.Interact();
         }
 
         // mouse interaction
