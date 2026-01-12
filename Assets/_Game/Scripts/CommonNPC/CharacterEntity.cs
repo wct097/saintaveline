@@ -20,17 +20,18 @@ public class CharacterEntity : GameEntity
     public IReadOnlyList<ItemEntity?> Inventory => _inventory.AsReadOnly();
 
     [SerializeField] private List<GameObject> _initialInventory = new List<GameObject>();
-    [SerializeField] private GameObject? _initialEquippedItem = null;
+    //[SerializeField] private GameObject? _initialEquippedItem = null;
     
     //private ItemEntity? _equippedItem = null;
     //public ItemEntity? EquippedItem { get => _equippedItem; }
 
-    [SerializeField] private int? _equippedItemIndex = null; // the item the player is carrying
+    [SerializeField] private int _initialEquippedItemIndex = -1;
+    private int _equippedItemIndex = -1; // the item the player is carrying
     public ItemEntity? EquippedItem2
     {
         get
         {
-            if (_equippedItemIndex == null) return null;
+            if (_equippedItemIndex == -1) return null;
             if (_equippedItemIndex < 0 || _equippedItemIndex >= _inventory.Count) return null;
             return _inventory[(int)_equippedItemIndex];
         }
@@ -46,9 +47,9 @@ public class CharacterEntity : GameEntity
             this.AddItemToInventory(item);
         }
 
-        if (_equippedItemIndex != null)
+        if (_initialEquippedItemIndex != -1)
         {
-            var item = _inventory[(int)_equippedItemIndex];
+            var item = _inventory[_initialEquippedItemIndex];
             Assert.IsNotNull(item, 
                 $"CharacterEntity.Awake: Initial equipped item index points to null slot");
 
@@ -100,13 +101,13 @@ public class CharacterEntity : GameEntity
             throw new System.Exception($"EquippedItem: Item '{item.name}' does not have ItemData.");
         }
 
-        if (_equippedItemIndex != null)
+        if (_equippedItemIndex != -1)
         {
             Assert.IsTrue(_equippedItemIndex >= 0 && _equippedItemIndex < _inventory.Count,
                 $"EquippedItem: _equippedItemIndex {_equippedItemIndex} is out of range for character '{name}' inventory.");
 
-            var equippedItem = _inventory[_equippedItemIndex.Value];
-            Assert.IsNotNull(equippedItem, $"SetEquippedItem: Equipped item set to slot '{_equippedItemIndex.Value}', but slot is empty");
+            var equippedItem = _inventory[_equippedItemIndex];
+            Assert.IsNotNull(equippedItem, $"SetEquippedItem: Equipped item set to slot '{_equippedItemIndex}', but slot is empty");
 
             if (autoUnequip)
             {
@@ -158,26 +159,26 @@ public class CharacterEntity : GameEntity
 
     public ItemEntity? DropEquippedItem()
     {
-        if (_equippedItemIndex == null) return null;
-        Assert.IsNotNull(_inventory[_equippedItemIndex.Value],
+        if (_equippedItemIndex == -1) return null;
+        Assert.IsNotNull(_inventory[_equippedItemIndex],
             $"DropEquippedItem: Equipped Item Index is null");
 
-        var item = _inventory[_equippedItemIndex.Value];
+        var item = _inventory[_equippedItemIndex];
         item!.OnUnEquipped();
         this.DropItem(item!);
 
-        _equippedItemIndex = null;
+        _equippedItemIndex = -1;
         return item;
     }
 
     public void ThrowEquippedItem()
     {
-        if (_equippedItemIndex == null) return;
+        if (_equippedItemIndex == -1) return;
 
-        Assert.IsNotNull(_inventory[_equippedItemIndex.Value],
+        Assert.IsNotNull(_inventory[_equippedItemIndex],
             $"ThrowEquippedItem: Equipped item's inventory slot is null");
 
-        var item = _inventory[_equippedItemIndex.Value];
+        var item = _inventory[_equippedItemIndex];
         item!.OnUnEquipped();
         item!.OnDropped();
         item!.OnRestorePhysics();
@@ -189,24 +190,24 @@ public class CharacterEntity : GameEntity
         }
 
         _inventory[(int)_equippedItemIndex] = null;
-        _equippedItemIndex = null;
+        _equippedItemIndex = -1;
     }
 
     public void Attack()
     {
-        if (_equippedItemIndex == null) return;
+        if (_equippedItemIndex == -1) return;
 
-        Assert.IsNotNull(_inventory[_equippedItemIndex.Value],
+        Assert.IsNotNull(_inventory[_equippedItemIndex],
             $"Attack: Equipped item's inventory slot is null");
 
-        _inventory[(int)_equippedItemIndex]!.Attack();
+        _inventory[_equippedItemIndex]!.Attack();
     }
 
     public void PrimaryAction()
     {
-        if (_equippedItemIndex == null) return;
+        if (_equippedItemIndex == -1) return;
 
-        Assert.IsNotNull(_inventory[_equippedItemIndex.Value],
+        Assert.IsNotNull(_inventory[_equippedItemIndex],
             $"PrimaryAction: Equipped item's inventory slot is null");
 
         _inventory[(int)_equippedItemIndex]!.PrimaryAction();  
@@ -221,7 +222,7 @@ public class CharacterEntity : GameEntity
             throw new System.Exception($"ToggleEquippedItem: Slot {slot} is out of range for character '{name}' inventory.");
         }
 
-        if (_equippedItemIndex != null && _equippedItemIndex == slot)
+        if (_equippedItemIndex != -1 && _equippedItemIndex == slot)
         {
             
             var equippedItem = _inventory[slot];
@@ -235,7 +236,7 @@ public class CharacterEntity : GameEntity
             equippedItem!.gameObject.SetActive(false);
             equippedItem!.OnUnEquipped(); 
 
-            _equippedItemIndex = null;
+            _equippedItemIndex = -1;
             return;
         }
 
