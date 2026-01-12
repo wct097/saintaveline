@@ -91,3 +91,21 @@ Desktop.ini
 Packages/
 .vs/
 .vsconfig
+
+# AI Development
+.claude/context.md
+.claude/session*.md
+.validation/
+.validation_cache/
+.validation_sessions/
+ai_docs/project_context.md
+scripts/logs/
+scripts/ai_feedback/*.log
+
+# Code review outputs
+scripts/code_review/output/
+
+
+# Cursor IDE
+.cursor/
+.cursorignore

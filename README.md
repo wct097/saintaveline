@@ -160,4 +160,37 @@ Follow the development through live streams at [YouTube](https://www.youtube.com
 2. Adjust difficulty and AI based on feedback
    - Polish controls and camera transitions
 
+---
+
+## AI-Assisted Development
+
+> **Note**: AI configuration is currently LOCAL ONLY. Do not push to remote until authorized.
+
+This project is configured for AI-assisted development with Claude Code and other AI tools.
+
+### Quick Start
+```bash
+# Load project context in Claude Code
+/prime
+
+# Make commits with AI assistance
+/save
+
+# Repository maintenance
+/clean
+```
+
+### AI Documentation
+- `ai_docs/` - Best practices and project context
+- `.claude/commands/` - Custom Claude Code commands
+- `CLAUDE.md` - Project guidance for AI assistants
+
+### Available Commands
+| Command | Description |
+|---------|-------------|
+| `/prime` | Load project context for optimal AI assistance |
+| `/save` | AI-enhanced git commits with proper attribution |
+| `/clean` | Repository maintenance and validation |
+| `/feature` | Feature development workflow |
+| `/issues` | GitHub issues integration |
 
