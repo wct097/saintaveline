@@ -1,5 +1,9 @@
 # Saint Aveline - Development Plan
 
+> **LOCAL ONLY - DO NOT PUSH TO REMOTE**
+> All development in this plan occurs locally. No branches are pushed to origin.
+> Integration branch: `feature/ai-build-testing`
+
 > **Status**: Active Development
 > **Current Completion**: ~65-70%
 > **Target**: MVP Release
@@ -22,7 +26,7 @@ This plan uses **git worktrees** to enable multiple AI agents to work simultaneo
 
 ```
 D:\source\GitHub\
-├── saintaveline/                    # Main worktree (master)
+├── saintaveline/                    # Main worktree (feature/ai-build-testing)
 ├── saintaveline-combat/             # Worktree: Combat System
 ├── saintaveline-dialogue/           # Worktree: Dialogue System
 ├── saintaveline-audio/              # Worktree: Audio System
@@ -36,7 +40,10 @@ D:\source\GitHub\
 ```bash
 cd D:\source\GitHub\saintaveline
 
-# Create worktrees for each workstream
+# Ensure you're on the integration branch
+git checkout feature/ai-build-testing
+
+# Create worktrees for each workstream (branching from feature/ai-build-testing)
 git worktree add ../saintaveline-combat -b feature/combat-system
 git worktree add ../saintaveline-dialogue -b feature/dialogue-system
 git worktree add ../saintaveline-audio -b feature/audio-system
@@ -44,6 +51,8 @@ git worktree add ../saintaveline-ui -b feature/ui-framework
 git worktree add ../saintaveline-animation -b feature/animation-integration
 git worktree add ../saintaveline-tech-debt -b feature/tech-debt-cleanup
 ```
+
+> **Note**: All worktree branches are created from `feature/ai-build-testing` and will merge back into it. Nothing is pushed to the remote repository.
 
 ---
 
@@ -222,6 +231,8 @@ git worktree add ../saintaveline-tech-debt -b feature/tech-debt-cleanup
 
 ## Integration Schedule
 
+All merges go to `feature/ai-build-testing`. **Nothing is pushed to remote.**
+
 ### Phase 1: Foundation (Parallel)
 All workstreams can begin simultaneously. Technical debt (WS-6) should merge first to establish clean patterns.
 
@@ -236,13 +247,13 @@ Week 1-2:
 ```
 
 ### Phase 2: Integration
-After initial features complete, integration branches merge to master with testing.
+After initial features complete, branches merge to `feature/ai-build-testing` with testing.
 
 ```
 Week 3-4:
-├── Merge WS-1 (Combat) → master
-├── Merge WS-5 (Animation) → master
-├── Merge WS-3 (Audio) → master
+├── Merge WS-1 (Combat) → feature/ai-build-testing
+├── Merge WS-5 (Animation) → feature/ai-build-testing
+├── Merge WS-3 (Audio) → feature/ai-build-testing
 └── Integration testing
 ```
 
@@ -251,8 +262,8 @@ Final features and cross-system integration.
 
 ```
 Week 5-6:
-├── Merge WS-2 (Dialogue) → master
-├── Merge WS-4 (UI) → master
+├── Merge WS-2 (Dialogue) → feature/ai-build-testing
+├── Merge WS-4 (UI) → feature/ai-build-testing
 ├── Cross-system integration
 ├── Bug fixing
 └── Performance optimization
@@ -286,13 +297,16 @@ Week 5-6:
 
 ## Agent Instructions
 
+> **IMPORTANT**: All work is LOCAL ONLY. Do NOT push any branches to the remote repository.
+
 When working in a worktree:
 
 1. **Stay in your lane**: Only modify files owned by your workstream
-2. **Sync regularly**: `git fetch origin && git rebase origin/master`
+2. **Sync regularly**: Rebase on `feature/ai-build-testing` before merging
 3. **Small commits**: Atomic, focused changes
-4. **Test before PR**: Verify Unity compiles without errors
+4. **Test before merge**: Verify Unity compiles without errors
 5. **Document changes**: Update this plan as work progresses
+6. **NO PUSHING**: All branches remain local
 
 ### Starting Work in a Worktree
 
@@ -303,10 +317,6 @@ cd D:\source\GitHub\saintaveline-combat
 # Verify branch
 git branch
 
-# Sync with master
-git fetch origin
-git rebase origin/master
-
 # Begin work
 # ...
 
@@ -314,8 +324,28 @@ git rebase origin/master
 git add .
 git commit -m "feat(combat): implement ranged weapon system"
 
-# Push for PR
-git push -u origin feature/combat-system
+# When ready to integrate, rebase on integration branch first
+git rebase feature/ai-build-testing
+
+# Then merge into integration branch (from main worktree)
+cd D:\source\GitHub\saintaveline
+git merge feature/combat-system
+```
+
+### Merging a Completed Workstream
+
+```bash
+# From the main worktree (saintaveline/)
+cd D:\source\GitHub\saintaveline
+git checkout feature/ai-build-testing
+
+# Merge the completed workstream
+git merge feature/combat-system
+
+# If conflicts, resolve and commit
+# Test the build in Unity
+
+# Do NOT push to remote
 ```
 
 ---
@@ -343,3 +373,4 @@ git push -u origin feature/combat-system
 | Date | Author | Changes |
 |------|--------|---------|
 | 2026-01-12 | Claude | Initial plan creation |
+| 2026-01-12 | Claude | Updated for LOCAL ONLY workflow; integration branch is feature/ai-build-testing |
