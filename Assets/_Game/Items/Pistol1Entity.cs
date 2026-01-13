@@ -217,13 +217,19 @@ public class Pistol1Entity : ItemEntity
     void Shoot()
     {
         Vector3 direction = GetFireDirection();
-        
+
         if (Physics.Raycast(_firePoint!.position, direction, out RaycastHit hit, _pistolItemData!.FireRange))
         {
             var entity = hit.collider.GetComponent<GameEntity>();
             if (entity != null)
             {
                 entity.TakeDamage(_pistolItemData!.DamageScore);
+
+                // Play hit sound on successful hit
+                if (_pistolItemData.HitSound != null)
+                {
+                    _audioSource!.PlayOneShot(_pistolItemData.HitSound);
+                }
             }
 
             StartCoroutine(FireRayEffect(hit.point));
