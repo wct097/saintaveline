@@ -31,14 +31,23 @@ public class MapLabeler : MonoBehaviour
     private MapLabelingState _currentState = MapLabelingState.Idle;
     private PlayerStats _playerStats;
 
-    MapLabeler()
+    private void Awake()
     {
-        if (Instance != null)
+        if (Instance != null && Instance != this)
         {
-            throw new Exception("MapLabeler: Multiple instances detected. MapLabeler is a singleton and there should only be one instance in the scene.");
+            Destroy(gameObject);
+            return;
         }
 
         Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     private void Start()
