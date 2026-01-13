@@ -17,6 +17,15 @@ public class Pistol1Entity : ItemEntity
     private Transform? _firePoint;
     private bool _canFire = true;
 
+    // Ammo system
+    private int _currentAmmo;
+    private bool _isReloading;
+    private Coroutine? _reloadCoroutine;
+
+    public int CurrentAmmo => _currentAmmo;
+    public int MagazineSize => _pistolItemData?.MagazineSize ?? 0;
+    public bool IsReloading => _isReloading;
+
     // this is called AFTER the item is equipped
     public override void OnEquipped()
     {
@@ -55,12 +64,33 @@ public class Pistol1Entity : ItemEntity
         _lineRenderer.endWidth = 0.05f;
         _lineRenderer.startColor = Color.black;
         _lineRenderer.endColor = Color.black;
+
+        // Initialize ammo
+        _currentAmmo = _pistolItemData!.StartingAmmo;
+    }
+
+    private void Update()
+    {
+        // Check for reload input (R key)
+        if (Input.GetKeyDown(KeyCode.R) && !_isReloading && _currentAmmo < _pistolItemData!.MagazineSize)
+        {
+            StartReload();
+        }
     }
 
     public override void Attack()
     {
         if (!_canFire) return;
+        if (_isReloading) return;
+        if (_currentAmmo <= 0)
+        {
+            // Auto-reload when trying to fire with empty mag
+            StartReload();
+            return;
+        }
+
         _canFire = false;
+        _currentAmmo--;
 
         if (_attackCoroutine != null)
         {
@@ -68,6 +98,31 @@ public class Pistol1Entity : ItemEntity
         }
 
         _attackCoroutine = StartCoroutine(AnimateAttack());
+    }
+
+    public void StartReload()
+    {
+        if (_isReloading) return;
+        if (_currentAmmo >= _pistolItemData!.MagazineSize) return;
+
+        if (_reloadCoroutine != null)
+        {
+            StopCoroutine(_reloadCoroutine);
+        }
+        _reloadCoroutine = StartCoroutine(ReloadCoroutine());
+    }
+
+    private IEnumerator ReloadCoroutine()
+    {
+        _isReloading = true;
+        _canFire = false;
+
+        yield return new WaitForSeconds(_pistolItemData!.ReloadTime);
+
+        _currentAmmo = _pistolItemData.MagazineSize;
+        _isReloading = false;
+        _canFire = true;
+        _reloadCoroutine = null;
     }
 
     protected override void OnStartAttack()
