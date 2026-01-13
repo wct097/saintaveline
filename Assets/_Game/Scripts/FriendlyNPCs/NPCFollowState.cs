@@ -43,7 +43,7 @@ public class NPCFollowState : NPCState
         float distance = Vector3.Distance(this.NPC.transform.position, this.NPC.Target.position);
         if (distance < this.NPC.stopDistance)
         {
-            // we're close enough to the target, stop moving
+            // we're close enough to the Target, stop moving
             _agent.isStopped = true;
             _agent.ResetPath();
 
@@ -59,7 +59,7 @@ public class NPCFollowState : NPCState
         }
         else
         {
-            // the target is out of range, stop moving
+            // the Target is out of range, stop moving
             _agent.isStopped = true;
             _agent.ResetPath();
 

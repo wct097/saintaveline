@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using System.Collections;
+using NUnit.Framework;
 
 public class Pistol1Entity : ItemEntity
 {
@@ -121,10 +122,12 @@ public class Pistol1Entity : ItemEntity
 
     private Vector3 GetFireDirection()
     {
-        Vector3 screenCenter = new Vector3(_mainCamera!.pixelWidth / 2f, _mainCamera.pixelHeight / 2f, 0f);
-        Ray ray = _mainCamera.ScreenPointToRay(screenCenter);
-        Vector3 targetPoint = ray.GetPoint(_pistolItemData!.FireRange);
-        return (targetPoint - _firePoint!.position).normalized;
+        Assert.IsNotNull(this.OwnerEntity, "Pistol1Entity.GetFireDirection: OwnerEntity is null.");
+        Assert.IsNotNull(this.OwnerEntity as BaseNPC, "Pistol1Entity.GetFireDirection: OwnerEntity is not a CharacterEntity.");
+
+        // purposely recalculate `npcOwner` since the target can change between shots
+        BaseNPC? npcOwner = this.OwnerEntity as BaseNPC;
+        return npcOwner!.DirectionToTarget();
     }
 
     void Shoot()

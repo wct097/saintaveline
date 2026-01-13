@@ -75,6 +75,7 @@ public class CharacterEntity : GameEntity
         item.OnPickedUp(EquippedItemPos); // set the item's position to the character's equipped item pos
         item.gameObject.SetActive(false);
         _inventory[freeSlot] = item;
+        item.OwnerEntity = this;
 
         return freeSlot;
     }

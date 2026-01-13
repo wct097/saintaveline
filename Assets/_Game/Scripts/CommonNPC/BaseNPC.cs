@@ -149,4 +149,10 @@ public class BaseNPC : CharacterEntity, IHearingSensor
         // string objectName = this.name;
         // Debug.Log($"Object {objectName} heard a {stim.Kind} at {stim.Position}");
     }
+
+    public Vector3 DirectionToTarget()
+    {
+        if (Target == null) return Vector3.zero;
+        return (Target.position - transform.position).normalized;
+    }
 }
