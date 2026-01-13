@@ -29,6 +29,17 @@ public class PlayerInteractor : MonoBehaviour
     private void Start()
     {
         helpTextUI?.gameObject.SetActive(false);
+
+        // Register input handler in Start() to ensure InputManager.Instance exists
+        // (all Awake() methods complete before any Start() methods run)
+        if (InputManager.Instance != null)
+        {
+            InputManager.Instance.RegisterInputHandler(InputState.Gameplay, this.ProcessInput);
+        }
+        else
+        {
+            Debug.LogError("PlayerInteractor: InputManager.Instance is null - shooting will not work!");
+        }
     }
 
     private void checkInteractions()
@@ -92,9 +103,8 @@ public class PlayerInteractor : MonoBehaviour
         }
 
         _playerEntity = playerEntity;
-
-        InputManager.Instance.RegisterInputHandler(InputState.Gameplay, this.ProcessInput);
     }
+
 
     void ClearFocus()
     {
