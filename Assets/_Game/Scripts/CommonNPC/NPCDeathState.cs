@@ -13,14 +13,25 @@ public class NPCDeathState : NPCState
     public override void Enter()
     {
         Debug.Log($"{this.NPC!.name} has died.");
+
+        // Show death notification for family NPCs
+        if (this.NPC is FriendlyNPC)
+        {
+            string deathMessage = $"{this.NPC.name} has died...";
+            if (BottomTypewriter.Instance != null)
+            {
+                BottomTypewriter.Instance.Enqueue(deathMessage, MessageType.Error);
+            }
+        }
+
         Rigidbody rb = this.NPC!.GetComponent<Rigidbody>();
         if  (rb != null)
         {
             rb.isKinematic = false;
             rb.useGravity = true;
-            rb.constraints = RigidbodyConstraints.None; 
-            rb.linearDamping = 2f;  
-            rb.angularDamping = 1f;  
+            rb.constraints = RigidbodyConstraints.None;
+            rb.linearDamping = 2f;
+            rb.angularDamping = 1f;
             rb.AddTorque(Vector3.right * 5f, ForceMode.Impulse);
         }
 
