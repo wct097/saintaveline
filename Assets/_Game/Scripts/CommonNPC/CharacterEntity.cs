@@ -15,19 +15,16 @@ public class CharacterEntity : GameEntity
 {
     public const UInt16 MaxInventorySize = 10;
 
-    [SerializeField] public Transform EquippedItemPos;
+    [SerializeField] public Transform EquippedItemPos; // the positio where equipped items are held
+
     private readonly List<ItemEntity?> _inventory = Enumerable.Repeat<ItemEntity?>(null, MaxInventorySize).ToList();
     public IReadOnlyList<ItemEntity?> Inventory => _inventory.AsReadOnly();
 
     [SerializeField] private List<GameObject> _initialInventory = new List<GameObject>();
-    //[SerializeField] private GameObject? _initialEquippedItem = null;
-    
-    //private ItemEntity? _equippedItem = null;
-    //public ItemEntity? EquippedItem { get => _equippedItem; }
 
     [SerializeField] private int _initialEquippedItemIndex = -1;
     private int _equippedItemIndex = -1; // the item the player is carrying
-    public ItemEntity? EquippedItem2
+    public ItemEntity? EquippedItemEntity
     {
         get
         {

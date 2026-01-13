@@ -122,7 +122,7 @@ public class PlayerInteractor : MonoBehaviour
         // pick an item up and equip it
         if (Input.GetKeyDown(KeyCode.R))
         {
-            if (_playerEntity!.EquippedItem2 == null)
+            if (_playerEntity!.EquippedItemEntity == null)
             {
                 if (FocusedObject == null) return;
 
@@ -168,10 +168,10 @@ public class PlayerInteractor : MonoBehaviour
                 _playerEntity!.AddItemToInventory(itemEntity);
                 BottomTypewriter.Instance.Enqueue("Added item '" + itemEntity.ItemData!.ItemName + "' to inventory.");
             }
-            else if (_playerEntity!.EquippedItem2 != null)
+            else if (_playerEntity!.EquippedItemEntity != null)
             {
-                var itemEntity = _playerEntity!.EquippedItem2;
-                _playerEntity!.AddItemToInventory(_playerEntity!.EquippedItem2!);
+                var itemEntity = _playerEntity!.EquippedItemEntity;
+                _playerEntity!.AddItemToInventory(_playerEntity!.EquippedItemEntity!);
                 BottomTypewriter.Instance.Enqueue("Added item '" + itemEntity.ItemData!.ItemName + "' to inventory.");
             }
         }
