@@ -17,6 +17,15 @@ public class Pistol1Entity : ItemEntity
     private Transform? _firePoint;
     private bool _canFire = true;
 
+    // Ammo system
+    private int _currentAmmo;
+    private bool _isReloading;
+    private Coroutine? _reloadCoroutine;
+
+    public int CurrentAmmo => _currentAmmo;
+    public int MagazineSize => _pistolItemData?.MagazineSize ?? 0;
+    public bool IsReloading => _isReloading;
+
     // this is called AFTER the item is equipped
     public override void OnEquipped()
     {
@@ -55,12 +64,33 @@ public class Pistol1Entity : ItemEntity
         _lineRenderer.endWidth = 0.05f;
         _lineRenderer.startColor = Color.black;
         _lineRenderer.endColor = Color.black;
+
+        // Initialize ammo
+        _currentAmmo = _pistolItemData!.StartingAmmo;
+    }
+
+    private void Update()
+    {
+        // Check for reload input (R key)
+        if (Input.GetKeyDown(KeyCode.R) && !_isReloading && _currentAmmo < _pistolItemData!.MagazineSize)
+        {
+            StartReload();
+        }
     }
 
     public override void Attack()
     {
         if (!_canFire) return;
+        if (_isReloading) return;
+        if (_currentAmmo <= 0)
+        {
+            // Auto-reload when trying to fire with empty mag
+            StartReload();
+            return;
+        }
+
         _canFire = false;
+        _currentAmmo--;
 
         if (_attackCoroutine != null)
         {
@@ -68,6 +98,63 @@ public class Pistol1Entity : ItemEntity
         }
 
         _attackCoroutine = StartCoroutine(AnimateAttack());
+    }
+
+    public void StartReload()
+    {
+        if (_isReloading) return;
+        if (_currentAmmo >= _pistolItemData!.MagazineSize) return;
+
+        if (_reloadCoroutine != null)
+        {
+            StopCoroutine(_reloadCoroutine);
+        }
+        _reloadCoroutine = StartCoroutine(ReloadCoroutine());
+    }
+
+    private IEnumerator ReloadCoroutine()
+    {
+        _isReloading = true;
+        _canFire = false;
+
+        // Play reload sound
+        if (_pistolItemData!.ReloadSound != null)
+        {
+            _audioSource!.PlayOneShot(_pistolItemData.ReloadSound);
+        }
+
+        // Simple reload animation - tilt weapon down
+        float reloadTime = _pistolItemData.ReloadTime;
+        float halfTime = reloadTime * 0.5f;
+
+        Quaternion startRot = _defaultRotation;
+        Quaternion reloadRot = _defaultRotation * Quaternion.Euler(30f, 0f, 0f);
+
+        // Tilt down
+        float elapsed = 0f;
+        while (elapsed < halfTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / halfTime;
+            transform.localRotation = Quaternion.Slerp(startRot, reloadRot, t);
+            yield return null;
+        }
+
+        // Tilt back up
+        elapsed = 0f;
+        while (elapsed < halfTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / halfTime;
+            transform.localRotation = Quaternion.Slerp(reloadRot, startRot, t);
+            yield return null;
+        }
+
+        transform.localRotation = _defaultRotation;
+        _currentAmmo = _pistolItemData.MagazineSize;
+        _isReloading = false;
+        _canFire = true;
+        _reloadCoroutine = null;
     }
 
     protected override void OnStartAttack()
@@ -127,16 +214,50 @@ public class Pistol1Entity : ItemEntity
         return (targetPoint - _firePoint!.position).normalized;
     }
 
+    private float CalculateDamageFalloff(float distance)
+    {
+        float falloffStart = _pistolItemData!.FalloffStartRange;
+        float maxRange = _pistolItemData.FireRange;
+        float minMultiplier = _pistolItemData.MinDamageMultiplier;
+
+        // Full damage up to falloff start range
+        if (distance <= falloffStart)
+        {
+            return 1f;
+        }
+
+        // Linear falloff from falloffStart to maxRange
+        float falloffRange = maxRange - falloffStart;
+        if (falloffRange <= 0)
+        {
+            return minMultiplier;
+        }
+
+        float t = (distance - falloffStart) / falloffRange;
+        return Mathf.Lerp(1f, minMultiplier, t);
+    }
+
     void Shoot()
     {
         Vector3 direction = GetFireDirection();
-        
+
         if (Physics.Raycast(_firePoint!.position, direction, out RaycastHit hit, _pistolItemData!.FireRange))
         {
             var entity = hit.collider.GetComponent<GameEntity>();
             if (entity != null)
             {
-                entity.TakeDamage(_pistolItemData!.DamageScore);
+                // Calculate damage with distance falloff
+                float distance = hit.distance;
+                float damageMultiplier = CalculateDamageFalloff(distance);
+                float damage = _pistolItemData!.DamageScore * damageMultiplier;
+
+                entity.TakeDamage(damage);
+
+                // Play hit sound on successful hit
+                if (_pistolItemData.HitSound != null)
+                {
+                    _audioSource!.PlayOneShot(_pistolItemData.HitSound);
+                }
             }
 
             StartCoroutine(FireRayEffect(hit.point));
