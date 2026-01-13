@@ -84,6 +84,14 @@ public class InventoryUI : MonoBehaviour
         InputManager.Instance.RegisterInputHandler(InputState.InventoryDlg, this.ProcessInput);
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
     public void ProcessInput()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
