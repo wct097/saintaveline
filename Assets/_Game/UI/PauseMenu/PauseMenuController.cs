@@ -23,18 +23,15 @@ public class PauseMenuController : MonoBehaviour
     private float _cachedTimeScale = 1f;
     private float _cachedFixedDelta = 0.02f;
 
-    private PauseMenuController()
-    {
-        if (Instance != null)
-        {
-            throw new System.Exception("PauseMenuController: Multiple instances detected.");
-        }
-
-        Instance = this;
-    }
-
     private void Awake()
     {
+        // Singleton pattern - destroy duplicate if one exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
         // AI: Grab UIDocument and root
         _uiDocument = GetComponent<UIDocument>();
         if (_uiDocument != null)
@@ -55,10 +52,7 @@ public class PauseMenuController : MonoBehaviour
 
         if (_btnMainMenu != null)
         {
-            _btnMainMenu.clicked += () =>
-            {
-                SceneManager.LoadScene(_mainMenuSceneName);
-            };
+            _btnMainMenu.clicked += OnMainMenuClicked;
         }
 
         if (_btnSettings != null)
@@ -195,6 +189,14 @@ public class PauseMenuController : MonoBehaviour
             // {
             //     UnityEngine.Cursor.visible = true;
             // }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
         }
     }
 }
