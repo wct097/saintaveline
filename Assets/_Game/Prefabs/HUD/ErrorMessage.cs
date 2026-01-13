@@ -50,6 +50,14 @@ public sealed class ErrorMessage : MonoBehaviour
         _text.text = string.Empty;
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
     public void ShowError(string message)
     {
         if (string.IsNullOrEmpty(message))
