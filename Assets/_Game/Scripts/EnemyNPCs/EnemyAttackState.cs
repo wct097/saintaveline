@@ -7,7 +7,7 @@ using System.Collections.Generic;
 [NPCStateTag("EnemyAttack")]
 public class EnemyAttackState : NPCState
 {  
-    public Transform _firePoint = new GameObject("FirePoint").transform;
+    public Transform _firePoint;
     public AudioClip[] _gunshotSounds;
 
     public float fireRate = 1f;
@@ -31,6 +31,7 @@ public class EnemyAttackState : NPCState
             throw new System.Exception("BaseNPC is not an EnemyNPC. Cannot enter attack state.");
         }
 
+        _firePoint = new GameObject("FirePoint").transform;
         _firePoint.SetParent(this.NPC!.transform);
         _firePoint.localPosition = new Vector3(0.004f, 0.6019999f, 0.425f);
         _firePoint.localRotation = Quaternion.Euler(0f, 0f, 0f);
