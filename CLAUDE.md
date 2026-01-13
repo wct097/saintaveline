@@ -1,10 +1,8 @@
 # CLAUDE.md
 
-> **LOCAL ONLY - DO NOT PUSH TO REMOTE**
-> This branch (feature/ai-setup) and all AI configuration changes are LOCAL ONLY.
-> NEVER push these changes to the remote repository until explicitly authorized by the user.
-
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+**Remote:** https://github.com/wct097/saintaveline (fork of DogFingerStudios/saintaveline)
 
 ## Repository Overview
 
