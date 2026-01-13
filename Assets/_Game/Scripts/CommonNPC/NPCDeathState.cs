@@ -43,12 +43,15 @@ public class NPCDeathState : NPCState
 
     public override NPCStateReturnValue? Update()
     {
+        // Safety check - NPC could be destroyed
+        if (this.NPC == null) return null;
+
         _stateTimer += Time.deltaTime;                                 // AI: Accumulate time
 
         if (!_fadeStarted && _stateTimer >= _delayBeforeFade)
         {
             _fadeStarted = true;                                      // AI: Prevent multiple starts
-            this.NPC!.StartCoroutine(FadeOutAndDestroy());
+            this.NPC.StartCoroutine(FadeOutAndDestroy());
         }
 
         return null;
@@ -56,7 +59,23 @@ public class NPCDeathState : NPCState
 
     private IEnumerator FadeOutAndDestroy()
     {
-        var renderer = this.NPC!.GetComponent<MeshRenderer>();
+        // Try to find any renderer - check for SkinnedMeshRenderer first (animated characters),
+        // then MeshRenderer, searching in children if not on root object
+        Renderer? renderer = this.NPC!.GetComponentInChildren<SkinnedMeshRenderer>();
+        if (renderer == null)
+        {
+            renderer = this.NPC!.GetComponentInChildren<MeshRenderer>();
+        }
+
+        // If no renderer found, just wait and destroy without fading
+        if (renderer == null)
+        {
+            Debug.LogWarning($"NPCDeathState: No renderer found on {this.NPC.name}, skipping fade effect.");
+            yield return new WaitForSeconds(_fadeDuration);
+            UnityEngine.Object.Destroy(NPC.gameObject);
+            yield break;
+        }
+
         var material = renderer.material;
         var originalColor = material.color;
 
