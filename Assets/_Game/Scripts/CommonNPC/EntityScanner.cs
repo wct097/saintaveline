@@ -51,24 +51,28 @@ class EntityScanner
 
     public IEnumerable<Collider> doScan(int maxObjects = 0)
     {
-        var eyePosition = SourceTransform.position + this.EyeOffset;
+        // Guard against null SourceTransform
+        if (_sourceTransform == null) yield break;
+
+        var eyePosition = _sourceTransform.position + this.EyeOffset;
 
         Array.Clear(_candidates, 0, _candidates.Length); // Reset candidates array
 
         // OverlapSphereNonAlloc will not allocate anything to memory, and a sphere is also quicker than a box
-        int candidateCount = Physics.OverlapSphereNonAlloc(SourceTransform.position, ViewDistance / 2f, _candidates, _targetMask);
+        int candidateCount = Physics.OverlapSphereNonAlloc(_sourceTransform.position, ViewDistance / 2f, _candidates, _targetMask);
 
         int count = 0;
         foreach (Collider target in _candidates)
         {
             if (target == null) continue;
-            if (target.transform == SourceTransform) continue;
+            if (target.transform == null) continue;
+            if (target.transform == _sourceTransform) continue;
 
             float distanceToTarget = Vector3.Distance(eyePosition, target.transform.position);
             if (distanceToTarget > ViewDistance) continue;
 
             Vector3 dirToTarget = (target.transform.position - eyePosition).normalized;
-            float angleToTarget = Vector3.Angle(SourceTransform.forward, dirToTarget);
+            float angleToTarget = Vector3.Angle(_sourceTransform.forward, dirToTarget);
             if (angleToTarget > (ViewAngle / 2f)) continue;
 
             // float distanceToTarget = Vector3.Distance(eyePosition, target.transform.position);
