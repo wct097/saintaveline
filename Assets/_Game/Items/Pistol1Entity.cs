@@ -214,6 +214,29 @@ public class Pistol1Entity : ItemEntity
         return (targetPoint - _firePoint!.position).normalized;
     }
 
+    private float CalculateDamageFalloff(float distance)
+    {
+        float falloffStart = _pistolItemData!.FalloffStartRange;
+        float maxRange = _pistolItemData.FireRange;
+        float minMultiplier = _pistolItemData.MinDamageMultiplier;
+
+        // Full damage up to falloff start range
+        if (distance <= falloffStart)
+        {
+            return 1f;
+        }
+
+        // Linear falloff from falloffStart to maxRange
+        float falloffRange = maxRange - falloffStart;
+        if (falloffRange <= 0)
+        {
+            return minMultiplier;
+        }
+
+        float t = (distance - falloffStart) / falloffRange;
+        return Mathf.Lerp(1f, minMultiplier, t);
+    }
+
     void Shoot()
     {
         Vector3 direction = GetFireDirection();
@@ -223,7 +246,12 @@ public class Pistol1Entity : ItemEntity
             var entity = hit.collider.GetComponent<GameEntity>();
             if (entity != null)
             {
-                entity.TakeDamage(_pistolItemData!.DamageScore);
+                // Calculate damage with distance falloff
+                float distance = hit.distance;
+                float damageMultiplier = CalculateDamageFalloff(distance);
+                float damage = _pistolItemData!.DamageScore * damageMultiplier;
+
+                entity.TakeDamage(damage);
 
                 // Play hit sound on successful hit
                 if (_pistolItemData.HitSound != null)
