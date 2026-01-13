@@ -194,7 +194,13 @@ public class CharacterEntity : GameEntity
 
     public void Attack()
     {
-        if (_equippedItemIndex == null) return;
+        if (_equippedItemIndex == null)
+        {
+            Debug.LogWarning("[SHOOT DEBUG] Attack() called but _equippedItemIndex is NULL - no weapon equipped!");
+            return;
+        }
+
+        Debug.Log($"[SHOOT DEBUG] Attack() - equippedItemIndex={_equippedItemIndex}, calling item.Attack()");
 
         Assert.IsNotNull(_inventory[_equippedItemIndex.Value],
             $"Attack: Equipped item's inventory slot is null");

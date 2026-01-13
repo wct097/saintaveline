@@ -45,6 +45,7 @@ public class FullMapUI : MonoBehaviour
     private PlayerStats _playerStats;
 
     private CanvasGroup _canvasGroup;
+    private bool _initializedFromCode;
     public bool IsActive { get; private set; }
 
     private void Awake()
@@ -58,6 +59,9 @@ public class FullMapUI : MonoBehaviour
 
     private void Start()
     {
+        // Skip if already initialized from code
+        if (_initializedFromCode) return;
+
         if (_mapImage != null && _mapRenderTexture != null)
         {
             _mapImage.texture = _mapRenderTexture;
@@ -233,6 +237,11 @@ public class FullMapUI : MonoBehaviour
         IsActive = true;
         gameObject.SetActive(true);
 
+        if (_mapCamera != null)
+        {
+            _mapCamera.enabled = true;
+        }
+
         if (_canvasGroup != null)
         {
             _canvasGroup.alpha = 1f;
@@ -247,6 +256,11 @@ public class FullMapUI : MonoBehaviour
     public void Hide()
     {
         IsActive = false;
+
+        if (_mapCamera != null)
+        {
+            _mapCamera.enabled = false;
+        }
 
         if (_canvasGroup != null)
         {
@@ -346,5 +360,46 @@ public class FullMapUI : MonoBehaviour
     private void OnDestroy()
     {
         ClearLabelMarkers();
+    }
+
+    /// <summary>
+    /// Initialize FullMapUI from code (used by MapSystemInitializer).
+    /// </summary>
+    public void InitializeFromCode(RawImage mapImage, RenderTexture renderTexture, Camera mapCamera,
+        RectTransform mapContainer, TextMeshProUGUI zoomText, Button closeButton)
+    {
+        _initializedFromCode = true;
+
+        _mapImage = mapImage;
+        _mapRenderTexture = renderTexture;
+        _mapCamera = mapCamera;
+        _mapContainer = mapContainer;
+        _zoomLevelText = zoomText;
+        _closeButton = closeButton;
+
+        // Find player
+        var player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            _playerTransform = player.transform;
+            _playerStats = player.GetComponent<PlayerStats>();
+        }
+
+        if (_mapImage != null && _mapRenderTexture != null)
+        {
+            _mapImage.texture = _mapRenderTexture;
+        }
+
+        if (_mapCamera != null)
+        {
+            _originalCameraPosition = _mapCamera.transform.position;
+        }
+
+        _currentZoom = _defaultZoom;
+
+        if (_closeButton != null)
+        {
+            _closeButton.onClick.AddListener(OnCloseClicked);
+        }
     }
 }

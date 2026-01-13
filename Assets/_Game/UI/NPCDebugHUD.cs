@@ -47,7 +47,10 @@ public class NPCDebugHUD : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (HealthSlider != null && _thisNPC != null)
+        // Early exit if critical references are missing
+        if (_thisNPC == null || _playerTransform == null) return;
+
+        if (HealthSlider != null)
         {
             HealthSlider.value = _thisNPC.Health;
         }
@@ -58,13 +61,14 @@ public class NPCDebugHUD : MonoBehaviour
             DistanceText.text = $"{distance:F2} m";
         }
 
-        if (StateText != null && _thisNPC != null)
+        if (StateText != null)
         {
-            StateText.text = _thisNPC.StateMachine.CurrentState!.GetType().Name;
-        }
-        else
-        {
-            StateText.text = "<Unknown State>";
+            // Safely access StateMachine and CurrentState
+            var stateMachine = _thisNPC.StateMachine;
+            var currentState = stateMachine?.CurrentState;
+            StateText.text = currentState != null
+                ? currentState.GetType().Name
+                : "<Unknown State>";
         }
     }
 }

@@ -27,7 +27,7 @@ public sealed class ErrorMessage : MonoBehaviour
         }
 
         Instance = this;
-        _textDisplayer = new TextDisplayer();
+        _textDisplayer = gameObject.AddComponent<TextDisplayer>();
 
         if (_canvasGroup == null)
         {

@@ -86,7 +86,7 @@ public class InputManager : MonoBehaviour
         {
             if (CurrentState == InputState.Gameplay)
             {
-                if (MapController.Instance != null)
+                if (MapController.Instance != null && MapController.Instance.IsFullMapReady)
                 {
                     this.SetInputState(InputState.FullMap);
                     MapController.Instance.OpenFullMap();

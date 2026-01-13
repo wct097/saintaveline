@@ -60,7 +60,7 @@ public sealed class BottomTypewriter : MonoBehaviour
         }
 
         Instance = this;
-        _textDisplayer = new TextDisplayer();
+        _textDisplayer = gameObject.AddComponent<TextDisplayer>();
 
         if (_canvasGroup == null)
         {

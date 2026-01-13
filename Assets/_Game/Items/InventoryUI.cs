@@ -80,7 +80,11 @@ public class InventoryUI : MonoBehaviour
         listItems.Add("Player");
 
         _transferDropdown.AddOptions(listItems.OrderBy(x => x).ToList());
+    }
 
+    private void Start()
+    {
+        // Register input handler in Start() to ensure InputManager.Instance exists
         InputManager.Instance.RegisterInputHandler(InputState.InventoryDlg, this.ProcessInput);
     }
 

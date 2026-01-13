@@ -47,6 +47,9 @@ NPC      │ WS-2A    │ WS-2A    │ WS-2B    │ WS-2B    │ WS-2C    │  M
 ─────────┼──────────┼──────────┼──────────┼──────────┼──────────┼──────────┤
 TRACK C  │▓▓▓▓▓▓▓▓▓▓│▓▓▓▓▓▓▓▓▓▓│▓▓▓▓▓▓▓▓▓▓│▓▓▓▓▓▓▓▓▓▓│          │          │
 Audio    │ WS-3A    │ WS-3A    │ WS-3B    │ WS-3B    │  MERGE   │          │
+─────────┼──────────┼──────────┼──────────┼──────────┼──────────┼──────────┤
+TRACK D  │▄▄▄▄▄▄▄▄▄▄│▄▄▄▄▄▄▄▄▄▄│▄▄▄▄▄▄▄▄▄▄│▄▄▄▄▄▄▄▄▄▄│          │          │
+Map      │ WS-6A    │ WS-6A    │ WS-6B    │ WS-6B    │  MERGE   │          │
 ─────────┴──────────┴──────────┴──────────┴──────────┴──────────┴──────────┘
          ▼ GATE: All tracks merged, integration tests pass
 
@@ -66,6 +69,7 @@ LEGEND:
   ░░ = Track A (Combat) - can run in parallel
   ▒▒ = Track B (NPC) - can run in parallel
   ▓▓ = Track C (Audio) - can run in parallel
+  ▄▄ = Track D (Map) - can run in parallel
 ```
 
 ---
@@ -77,7 +81,7 @@ LEGEND:
 Unity projects have **Library/** folder dependencies that cause corruption when multiple Unity instances access the same project. Instead:
 
 1. **Phase 0**: Single branch, sequential work (establishes foundation)
-2. **Phase 1**: Three parallel tracks using **code-only changes** in separate directories
+2. **Phase 1**: Four parallel tracks using **code-only changes** in separate directories
 3. **Phase 2**: Sequential polish after integration
 
 ### Track Isolation Rules
@@ -86,9 +90,10 @@ Tracks work in **non-overlapping file sets** to enable parallel development with
 
 | Track | Owns These Directories | Cannot Touch |
 |-------|------------------------|--------------|
-| **A: Combat** | `Items/`, `Scripts/EnemyNPCs/EnemyAttackState.cs` | FriendlyNPCs, UI, Audio |
-| **B: NPC** | `Scripts/FriendlyNPCs/`, `Scripts/CommonNPC/` | Items, EnemyAttackState, UI |
+| **A: Combat** | `Items/`, `Scripts/EnemyNPCs/EnemyAttackState.cs` | FriendlyNPCs, UI, Audio, Minimap |
+| **B: NPC** | `Scripts/FriendlyNPCs/`, `Scripts/CommonNPC/` | Items, EnemyAttackState, UI, Audio, Minimap |
 | **C: Audio** | `Scripts/Audio/` (new), `Scenes/Scripts/MusicManager.cs` | Everything else |
+| **D: Map** | `Minimap/`, `Scripts/Map/` (new), `Scripts/PlayerCharacter/MapLabeling.cs` | Items, NPC, Audio |
 
 ### Merge Strategy
 
@@ -99,7 +104,8 @@ feature/ai-build-testing (integration branch)
     │
     ├── feature/track-a-combat ──────┐
     ├── feature/track-b-npc ─────────┼── Merge all at Phase 1 end
-    └── feature/track-c-audio ───────┘
+    ├── feature/track-c-audio ───────┤
+    └── feature/track-d-map ─────────┘
     │
     └── Phase 2 commits (sequential)
 ```
@@ -239,6 +245,35 @@ AUTONOMOUS OPERATION - NO USER INPUT REQUIRED
 
 ---
 
+### Track D: Map System (WS-6)
+
+**Branch**: `feature/track-d-map`
+**Owns**: `Assets/_Game/Minimap/`, `Assets/_Game/Scripts/Map/` (new), `Scripts/PlayerCharacter/MapLabeling.cs`
+
+**Existing Infrastructure**:
+- `MinimapPlayerIconScript.cs` - Player icon positioning on minimap
+- `MapLabeling.cs` - Map point labeling system
+- `MinimapRenderTexture.renderTexture` - Render texture for minimap camera
+
+#### WS-6A: Minimap Enhancement
+| ID | Task | Details |
+|----|------|---------|
+| 6A-1 | Create MapController.cs | Singleton to manage minimap and full map states |
+| 6A-2 | Add minimap HUD element | Corner minimap using existing render texture, always visible |
+| 6A-3 | Add NPC icons to minimap | Show family NPCs (green) and enemies (red) on minimap |
+| 6A-4 | Add zoom controls | Mouse wheel or +/- to zoom minimap |
+
+#### WS-6B: Full Map Screen
+| ID | Task | Details |
+|----|------|---------|
+| 6B-1 | Create FullMapUI.cs | Full screen map overlay, toggle with M key |
+| 6B-2 | Add pan controls | WASD or mouse drag to pan the full map |
+| 6B-3 | Add zoom controls | Mouse wheel to zoom in/out on full map |
+| 6B-4 | Show labeled points | Display markers from MapLabeling system |
+| 6B-5 | Add legend/key | Show icon meanings (player, family, enemies, objectives) |
+
+---
+
 ## Phase 2: Polish & Dialogue
 
 **Prerequisite**: Phase 1 tracks merged
@@ -322,21 +357,34 @@ All files accessible, minimal changes only.
 ### Phase 1 (Parallel Tracks)
 
 ```
-TRACK A: Combat                    TRACK B: NPC                      TRACK C: Audio
-─────────────────────────────      ─────────────────────────────     ─────────────────────────────
-Assets/_Game/Items/                Assets/_Game/Scripts/CommonNPC/   Assets/_Game/Scripts/Audio/
-├── ItemEntity.cs                  ├── BaseNPC.cs                    ├── AudioManager.cs (NEW)
-├── ItemData.cs                    ├── CharacterEntity.cs            ├── AmbientZone.cs (NEW)
-├── Pistol1Entity.cs               ├── NPCStateMachine.cs            └── TensionMusic.cs (NEW)
+TRACK A: Combat                    TRACK B: NPC
+─────────────────────────────      ─────────────────────────────
+Assets/_Game/Items/                Assets/_Game/Scripts/CommonNPC/
+├── ItemEntity.cs                  ├── BaseNPC.cs
+├── ItemData.cs                    ├── CharacterEntity.cs
+├── Pistol1Entity.cs               ├── NPCStateMachine.cs
 ├── PistolItemData.cs              ├── EntityScanner.cs
-├── RustyKnife/                    └── PersonalityTraits/            Assets/_Game/Scenes/Scripts/
-│   └── KnifeItemInteraction.cs                                      └── MusicManager.cs
+├── RustyKnife/                    └── PersonalityTraits/
+│   └── KnifeItemInteraction.cs
 └── InventoryUI.cs                 Assets/_Game/Scripts/FriendlyNPCs/
                                    ├── FriendlyNPC.cs
 Assets/_Game/Scripts/EnemyNPCs/    ├── SonNPC.cs
 └── EnemyAttackState.cs (shared*)  ├── DaughterNPC.cs (NEW)
                                    ├── GrandfatherNPC.cs (NEW)
                                    └── NPC*State.cs
+
+TRACK C: Audio                     TRACK D: Map
+─────────────────────────────      ─────────────────────────────
+Assets/_Game/Scripts/Audio/        Assets/_Game/Minimap/
+├── AudioManager.cs (NEW)          └── MinimapPlayerIconScript.cs
+├── AmbientZone.cs (NEW)
+└── TensionMusic.cs (NEW)          Assets/_Game/Scripts/Map/ (NEW)
+                                   ├── MapController.cs (NEW)
+Assets/_Game/Scenes/Scripts/       ├── FullMapUI.cs (NEW)
+└── MusicManager.cs                └── MinimapIcon.cs (NEW)
+
+                                   Assets/_Game/Scripts/PlayerCharacter/
+                                   └── MapLabeling.cs
 
 * EnemyAttackState.cs: Track A owns combat logic, Track B may read only
 ```
@@ -345,9 +393,10 @@ Assets/_Game/Scripts/EnemyNPCs/    ├── SonNPC.cs
 
 | Track | Cannot Modify |
 |-------|---------------|
-| A | `FriendlyNPCs/*`, `CommonNPC/*` (except combat interfaces), `UI/*`, `Audio/*` |
-| B | `Items/*`, `EnemyAttackState.cs` combat methods, `UI/*`, `Audio/*` |
-| C | `Items/*`, `*NPC*/*`, `UI/*` |
+| A | `FriendlyNPCs/*`, `CommonNPC/*` (except combat interfaces), `UI/*`, `Audio/*`, `Minimap/*`, `Map/*` |
+| B | `Items/*`, `EnemyAttackState.cs` combat methods, `UI/*`, `Audio/*`, `Minimap/*`, `Map/*` |
+| C | `Items/*`, `*NPC*/*`, `UI/*`, `Minimap/*`, `Map/*` |
+| D | `Items/*`, `*NPC*/*`, `Audio/*`, `UI/*` (except map-related UI) |
 
 ---
 
@@ -400,11 +449,13 @@ echo "All items checked? Phase 0 complete."
 - [ ] Game loop is playable start-to-finish
 
 ### Phase 1 Complete When:
-- [ ] All three tracks merged without conflicts
+- [ ] All four tracks merged without conflicts
 - [ ] Smoke tests still pass
 - [ ] Combat has ammo/reload
 - [ ] All 3 family NPCs functional
 - [ ] Audio plays during gameplay
+- [ ] Minimap visible in HUD corner
+- [ ] M key opens full map screen
 
 ### MVP Complete When:
 - [ ] Player can complete full playthrough
@@ -440,3 +491,4 @@ When an agent begins work:
 | 2026-01-12 | Claude | Initial plan creation |
 | 2026-01-12 | Claude | Updated for LOCAL ONLY workflow |
 | 2026-01-12 | Claude | v2.0: Complete rewrite with accurate estimates, Gantt chart, parallel tracks, agent autonomy guidelines |
+| 2026-01-12 | Claude | v2.1: Added Track D (Map System) - minimap HUD and full map screen with M key toggle |

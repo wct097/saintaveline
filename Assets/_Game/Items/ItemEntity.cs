@@ -184,14 +184,14 @@ public class ItemEntity : GameEntity, ItemInteractable
 
     public void OnRemovePhysics()
     {
-        _hitCollider!.enabled = false;
-        _rigidbody!.isKinematic = true;
+        if (_hitCollider != null) _hitCollider.enabled = false;
+        if (_rigidbody != null) _rigidbody.isKinematic = true;
     }
 
     public void OnRestorePhysics()
     {
-        _hitCollider!.enabled = true;
-        _rigidbody!.isKinematic = false;
+        if (_hitCollider != null) _hitCollider.enabled = true;
+        if (_rigidbody != null) _rigidbody.isKinematic = false;
     }
 
     public void OnPickedUp(Transform equippedPoint)

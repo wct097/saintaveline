@@ -17,16 +17,24 @@ public class MissionManager : MonoBehaviour
     RunOnce? _runonce;
     RunOnce _init;
 
+    private bool _initializationFailed;
+
     public void Awake()
     {
         if (MinimapCamera == null)
         {
-            throw new Exception("Minimap camera not assigned.");
+            Debug.LogError("MissionManager: Minimap camera not assigned. Disabling.");
+            _initializationFailed = true;
+            enabled = false;
+            return;
         }
 
         if (InitialMission == null)
         {
-            throw new Exception("InitialMission not assigned.");
+            Debug.LogError("MissionManager: InitialMission not assigned. Disabling.");
+            _initializationFailed = true;
+            enabled = false;
+            return;
         }
 
         _init = new RunOnce()
@@ -40,7 +48,22 @@ public class MissionManager : MonoBehaviour
     void Initialization()
     {
         var player = GameObject.FindWithTag("Player");
+        if (player == null)
+        {
+            Debug.LogError("MissionManager: Player not found. Disabling.");
+            _initializationFailed = true;
+            enabled = false;
+            return;
+        }
+
         var entity = player.GetComponent<CharacterEntity>();
+        if (entity == null)
+        {
+            Debug.LogError("MissionManager: Player has no CharacterEntity. Disabling.");
+            _initializationFailed = true;
+            enabled = false;
+            return;
+        }
 
         MissionConfig config = new()
         {
@@ -54,19 +77,29 @@ public class MissionManager : MonoBehaviour
 
         if (CurrentMission == null)
         {
-            throw new Exception("CurrentMission is null after creation in Initialization.");
+            Debug.LogError("MissionManager: Failed to create mission. Disabling.");
+            _initializationFailed = true;
+            enabled = false;
+            return;
         }
 
         CurrentMission.OnMissionCompleted += MissionCompleteHandler;
         CurrentMission.OnTaskStarted += TaskStartedHandler;
         CurrentMission.OnTaskCompleted += TaskCompletedHandler;
 
-        MissionOverlay.AddMission(CurrentMission);
+        if (MissionOverlay != null)
+        {
+            MissionOverlay.AddMission(CurrentMission);
+        }
+
         CurrentMission.StartMission();
     }
 
     void Update()
     {
+        // Skip if initialization failed or _init wasn't created
+        if (_initializationFailed || _init == null) return;
+
         _init.Run();
 
         if (CurrentMission == null) return;
@@ -78,19 +111,41 @@ public class MissionManager : MonoBehaviour
     {
         if (CurrentMission == null)
         {
-            throw new Exception("CurrentMission is null in MissionCompleteHandler.");
+            Debug.LogWarning("MissionManager: CurrentMission is null in MissionCompleteHandler.");
+            return;
         }
 
+        // Unsubscribe before nulling
+        CurrentMission.OnMissionCompleted -= MissionCompleteHandler;
+        CurrentMission.OnTaskStarted -= TaskStartedHandler;
+        CurrentMission.OnTaskCompleted -= TaskCompletedHandler;
         CurrentMission = null;
     }
 
     void TaskStartedHandler(Task task)
     {
-        MissionOverlay.AddTask(task);
+        if (MissionOverlay != null)
+        {
+            MissionOverlay.AddTask(task);
+        }
     }
 
     void TaskCompletedHandler(Task task)
     {
-        MissionOverlay.CompleteTask(task);
+        if (MissionOverlay != null)
+        {
+            MissionOverlay.CompleteTask(task);
+        }
+    }
+
+    void OnDestroy()
+    {
+        // Unsubscribe from events to prevent issues during scene transitions
+        if (CurrentMission != null)
+        {
+            CurrentMission.OnMissionCompleted -= MissionCompleteHandler;
+            CurrentMission.OnTaskStarted -= TaskStartedHandler;
+            CurrentMission.OnTaskCompleted -= TaskCompletedHandler;
+        }
     }
 }

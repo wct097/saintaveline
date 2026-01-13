@@ -194,6 +194,7 @@ public class PlayerInteractor : MonoBehaviour
         // mouse interaction
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log($"[SHOOT DEBUG] Left click detected. EquippedItem2={_playerEntity!.EquippedItem2?.name ?? "NULL"}");
             _playerEntity!.Attack();
         }
         
