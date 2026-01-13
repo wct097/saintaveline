@@ -10,6 +10,11 @@ public class PistolItemData : ItemData
     public float FireRange;
     public Vector3 FirePoint;
 
+    // Ammo system
+    public int MagazineSize = 12;
+    public int StartingAmmo = 12;
+    public float ReloadTime = 2f;
+
     public AudioSource AudioSourcePrefab;
     public AudioClip FireSound;
     public float AudioRange;
