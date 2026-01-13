@@ -129,6 +129,12 @@ public class BaseNPC : CharacterEntity, IHearingSensor
     {
         if (stateMachine == null) return;
         stateMachine.Update();
+
+        // Update mental state over time (comfort/calmness recovery)
+        if (_entityProfile?.MentalState != null)
+        {
+            _entityProfile.MentalState.Tick();
+        }
     }
 
     private void OnEnable()
