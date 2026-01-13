@@ -44,10 +44,10 @@ public class BaseNPC : CharacterEntity, IHearingSensor
     [Tooltip("The distance at which the NPC will stop moving towards the target")]
     public float stopDistance = 1f;
 
-    public Transform target = null!;
+    // The target the NPC is interested in (e.g., the NPC this object is attacking)
+    public Transform Target = null!; 
 
-
-#region Interactable Interface Implementation
+    #region Interactable Interface Implementation
 
     public virtual string HelpText => $"{this.name}";
     public virtual void OnFocus() { }

@@ -14,7 +14,7 @@ public class NPCFollowState : NPCState
             throw new System.Exception("NPC is not a FriendlyNPC. Cannot enter NPCFollowState state.");
         }
 
-        if (this.NPC.target == null)
+        if (this.NPC.Target == null)
         {
             throw new System.Exception("Target is null. Cannot enter follow state.");
         }
@@ -40,7 +40,7 @@ public class NPCFollowState : NPCState
     {
         if (_agent == null || this.NPC == null) return null;
 
-        float distance = Vector3.Distance(this.NPC.transform.position, this.NPC.target.position);
+        float distance = Vector3.Distance(this.NPC.transform.position, this.NPC.Target.position);
         if (distance < this.NPC.stopDistance)
         {
             // we're close enough to the target, stop moving
@@ -54,8 +54,8 @@ public class NPCFollowState : NPCState
 
         if (distance < this.NPC.DetectionDistance)
         {
-            // we're chasing the target
-            _agent.SetDestination(this.NPC.target.transform.position);
+            // we're chasing the Target
+            _agent.SetDestination(this.NPC.Target.transform.position);
         }
         else
         {

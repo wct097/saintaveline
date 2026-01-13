@@ -24,7 +24,7 @@ public class CharacterEntity : GameEntity
 
     [SerializeField] private int _initialEquippedItemIndex = -1;
     private int _equippedItemIndex = -1; // the item the player is carrying
-    public ItemEntity? EquippedItemEntity
+    public ItemEntity? EquippedItem
     {
         get
         {

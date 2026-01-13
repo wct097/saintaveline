@@ -26,7 +26,7 @@ public class EnemyAttackState : NPCState
     public EnemyAttackState(BaseNPC npc, GameEntity target)
         : base(npc)
     {
-        if (this.NPC!.target == null)
+        if (this.NPC!.Target == null)
         {
             throw new System.Exception("BaseNPC is not an EnemyNPC. Cannot enter attack state.");
         }
@@ -79,19 +79,19 @@ public class EnemyAttackState : NPCState
     {
         if (_targetEntity!.IsAlive == false)
         {
-            // target is dead, go back to idle state
+            // Target is dead, go back to idle state
             return new NPCStateReturnValue(NPCStateReturnValue.ActionType.PopState);
         }
 
-        float distance = Vector3.Distance(this.NPC!.transform.position, this.NPC.target.position);
+        float distance = Vector3.Distance(this.NPC!.transform.position, this.NPC.Target.position);
         if (distance > this.NPC!.stopDistance)
         {
-            // target is out of range, go back to last state
+            // Target is out of range, go back to last state
             return new NPCStateReturnValue(NPCStateReturnValue.ActionType.PopState);
         }
 
-        // turn in the direction of the target
-        Vector3 direction = this.NPC.target.position - this.NPC.transform.position;
+        // turn in the direction of the Target
+        Vector3 direction = this.NPC.Target.position - this.NPC.transform.position;
         direction.y = 0f; // Keep rotation flat
         if (direction.sqrMagnitude > 0.001f)
         {
@@ -105,7 +105,7 @@ public class EnemyAttackState : NPCState
 
         if (Time.time >= nextFireTime)
         {
-            this.NPC!.EquippedItemEntity?.Attack();
+            this.NPC!.EquippedItem?.Attack();
             //Shoot();
             // get a random time between 0.5 and 1.5 seconds
             float randomTime = UnityEngine.Random.Range(0.5f, 1.5f);
@@ -117,7 +117,7 @@ public class EnemyAttackState : NPCState
 
     void Shoot()
     {
-        var direction = this.NPC!.target.position - _firePoint.position;
+        var direction = this.NPC!.Target.position - _firePoint.position;
         if (Physics.Raycast(_firePoint.position, direction, out RaycastHit hit, range))
         {
             this.NPC!.StartCoroutine(FireRayEffect(hit.point));
