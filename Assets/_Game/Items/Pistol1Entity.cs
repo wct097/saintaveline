@@ -117,8 +117,40 @@ public class Pistol1Entity : ItemEntity
         _isReloading = true;
         _canFire = false;
 
-        yield return new WaitForSeconds(_pistolItemData!.ReloadTime);
+        // Play reload sound
+        if (_pistolItemData!.ReloadSound != null)
+        {
+            _audioSource!.PlayOneShot(_pistolItemData.ReloadSound);
+        }
 
+        // Simple reload animation - tilt weapon down
+        float reloadTime = _pistolItemData.ReloadTime;
+        float halfTime = reloadTime * 0.5f;
+
+        Quaternion startRot = _defaultRotation;
+        Quaternion reloadRot = _defaultRotation * Quaternion.Euler(30f, 0f, 0f);
+
+        // Tilt down
+        float elapsed = 0f;
+        while (elapsed < halfTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / halfTime;
+            transform.localRotation = Quaternion.Slerp(startRot, reloadRot, t);
+            yield return null;
+        }
+
+        // Tilt back up
+        elapsed = 0f;
+        while (elapsed < halfTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / halfTime;
+            transform.localRotation = Quaternion.Slerp(reloadRot, startRot, t);
+            yield return null;
+        }
+
+        transform.localRotation = _defaultRotation;
         _currentAmmo = _pistolItemData.MagazineSize;
         _isReloading = false;
         _canFire = true;

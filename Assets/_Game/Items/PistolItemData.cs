@@ -17,5 +17,6 @@ public class PistolItemData : ItemData
 
     public AudioSource AudioSourcePrefab;
     public AudioClip FireSound;
+    public AudioClip ReloadSound;
     public float AudioRange;
 }
