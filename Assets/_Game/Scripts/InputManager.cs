@@ -9,7 +9,8 @@ public enum InputState
     CodexDlg,
     MapLabeling,
     BoatDriving,
-    PauseMenu
+    PauseMenu,
+    FullMap
 }
 
 public class InputManager : MonoBehaviour
@@ -85,19 +86,34 @@ public class InputManager : MonoBehaviour
         {
             if (CurrentState == InputState.Gameplay)
             {
-                if (CodexOverlayController.Instance.IsActive)
+                if (MapController.Instance != null)
                 {
-                    throw new Exception("InputManager: Codex Overlay is already active when trying to open it.");
+                    this.SetInputState(InputState.FullMap);
+                    MapController.Instance.OpenFullMap();
                 }
-
-                var playerEntity = this.GetComponentInParent<CharacterEntity>();
-                if (playerEntity == null)
+            }
+            else if (CurrentState == InputState.FullMap)
+            {
+                if (MapController.Instance != null)
                 {
-                    throw new System.Exception("PlayerInteractor: CharacterEntity script not found on Player object.");
+                    MapController.Instance.CloseFullMap();
+                    this.SetInputState(InputState.Gameplay);
                 }
-
-                this.SetInputState(InputState.CodexDlg);
-                CodexOverlayController.Instance.OpenCodexOverlay(playerEntity);
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            if (CurrentState == InputState.Gameplay)
+            {
+                if (CodexOverlayController.Instance != null && !CodexOverlayController.Instance.IsActive)
+                {
+                    var playerEntity = this.GetComponentInParent<CharacterEntity>();
+                    if (playerEntity != null)
+                    {
+                        this.SetInputState(InputState.CodexDlg);
+                        CodexOverlayController.Instance.OpenCodexOverlay(playerEntity);
+                    }
+                }
             }
         }
         else if (Input.GetKeyDown(KeyCode.Comma) 
@@ -118,15 +134,21 @@ public class InputManager : MonoBehaviour
                 PauseMenuController.Instance.ResumeGame();
                 this.SetInputState(InputState.Gameplay);
             }
+            else if (CurrentState == InputState.FullMap)
+            {
+                if (MapController.Instance != null)
+                {
+                    MapController.Instance.CloseFullMap();
+                    this.SetInputState(InputState.Gameplay);
+                }
+            }
             else if (CurrentState == InputState.CodexDlg)
             {
-                if (!CodexOverlayController.Instance.IsActive)
+                if (CodexOverlayController.Instance != null && CodexOverlayController.Instance.IsActive)
                 {
-                    throw new Exception("InputManager: Codex Overlay is not active when trying to close it.");
+                    this.SetInputState(InputState.Gameplay);
+                    CodexOverlayController.Instance.ToggleCodexOverlay(false);
                 }
-
-                this.SetInputState(InputState.Gameplay);
-                CodexOverlayController.Instance.ToggleCodexOverlay(false);
             }
         }
 
