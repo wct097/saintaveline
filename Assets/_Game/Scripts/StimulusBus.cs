@@ -8,7 +8,8 @@ public enum StimulusKind
 {
     Gunshot,
     Explosion,
-    Shout
+    Shout,
+    Footstep
 }
 
 

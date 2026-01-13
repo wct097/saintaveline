@@ -98,7 +98,7 @@ public class EnemyPatrolState : NPCState
     {
         base.HandleSound(stim);
 
-        if (stim.Kind == StimulusKind.Gunshot)
+        if (stim.Kind == StimulusKind.Gunshot || stim.Kind == StimulusKind.Footstep)
         {
             _nextState = new EnemyInvestigateState(_enemyNPC, stim.Position);
         }

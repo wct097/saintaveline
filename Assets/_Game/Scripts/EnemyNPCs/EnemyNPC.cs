@@ -38,7 +38,11 @@ public class EnemyNPC : BaseNPC
     {
         base.HandleSound(stim);
 
-        if (stim.Kind == StimulusKind.Gunshot)
+        // Check if sound is within hearing range
+        float distance = UnityEngine.Vector3.Distance(transform.position, stim.Position);
+        if (distance > stim.HearingRange) return;
+
+        if (stim.Kind == StimulusKind.Gunshot || stim.Kind == StimulusKind.Footstep)
         {
             this.stateMachine.CurrentState?.HandleSound(stim);
         }

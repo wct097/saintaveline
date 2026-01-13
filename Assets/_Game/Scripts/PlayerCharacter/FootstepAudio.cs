@@ -8,6 +8,9 @@ public class FootstepAudio : MonoBehaviour
     public float stepInterval = 0.5f;
     // public LayerMask groundLayers;
 
+    [Tooltip("Hearing range for footstep sounds when running")]
+    public float runFootstepHearingRange = 15f;
+
     private CharacterController controller;
     private AudioSource audioSource;
     private float stepTimer;
@@ -51,6 +54,17 @@ public class FootstepAudio : MonoBehaviour
         {
             audioSource.pitch = Random.Range(0.9f, 1.1f);
             audioSource.PlayOneShot(clip);
+        }
+
+        // Emit footstep stimulus when running (louder footsteps alert enemies)
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            StimulusBus.Emit(new SoundStimulus
+            {
+                Position = transform.position,
+                Kind = StimulusKind.Footstep,
+                HearingRange = runFootstepHearingRange
+            });
         }
     }
 
