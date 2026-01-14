@@ -120,20 +120,15 @@ public class Pistol1Entity : ItemEntity
         _attackCoroutine = null;
     }
 
-    private Vector3 GetFireDirection()
+    void Shoot()
     {
         Assert.IsNotNull(this.OwnerEntity, "Pistol1Entity.GetFireDirection: OwnerEntity is null.");
         Assert.IsNotNull(this.OwnerEntity as BaseNPC, "Pistol1Entity.GetFireDirection: OwnerEntity is not a CharacterEntity.");
 
         // purposely recalculate `npcOwner` since the target can change between shots
         BaseNPC? npcOwner = this.OwnerEntity as BaseNPC;
-        return npcOwner!.DirectionToTarget(true);
-    }
+        Vector3 direction = npcOwner!.DirectionToTarget(true);
 
-    void Shoot()
-    {
-        Vector3 direction = GetFireDirection();
-        
         if (Physics.Raycast(_firePoint!.position, direction, out RaycastHit hit, _pistolItemData!.FireRange))
         {
             var entity = hit.collider.GetComponent<GameEntity>();

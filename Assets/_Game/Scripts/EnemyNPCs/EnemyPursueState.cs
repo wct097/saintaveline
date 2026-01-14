@@ -8,10 +8,10 @@ public class EnemyPursueState : NPCState
     private UnityEngine.AI.NavMeshAgent? _agent = null;
     private AudioClip? _warningSound;
     private AudioClip? _willFindYouSound;
+    private float _nextFireTime = 0f;
 
     private readonly GameEntity _targetEntity;
     
-
     // TODO: this is a poor man's way to stop chasing, eventually we will want to be a 
     // little smarter -- for example, if the NPC cannot "see" the Target, then the NPC could
     // go to the last position it saw the Target, and if the Target is not in range or
@@ -95,6 +95,15 @@ public class EnemyPursueState : NPCState
             // Target is out of range, go back to idle state which we pushed earlier
             return new NPCStateReturnValue(
                 NPCStateReturnValue.ActionType.PopState);
+        }
+
+        if (Time.time >= _nextFireTime)
+        {
+            this.NPC!.EquippedItem?.Attack();
+
+            // get a random time between 0.5 and 1.5 seconds
+            float randomTime = UnityEngine.Random.Range(0.5f, 1.5f);
+            _nextFireTime = Time.time + randomTime;
         }
 
         return null;
