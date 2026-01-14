@@ -157,44 +157,18 @@ public class BaseNPC : CharacterEntity, IHearingSensor
         if (Target == null) return Vector3.zero;
         if (!addFuzziness) return (Target.position - transform.position).normalized;
 
-        Vector3 direction = Vector3.zero;
+        Vector3 direction = (Target.position - transform.position).normalized;
 
-        if (_entityProfile.MentalState.Calmness > 0.7f)
+        float fuzziness = Mathf.Lerp(0.7f, 0f, (_entityProfile.MentalState.Calmness + 1f) / 2f);
+        
+        if (fuzziness > 0f)
         {
-            // Highly calm, minimal fuzziness
-            direction = (Target.position - transform.position).normalized;
-        }
-        else if (_entityProfile.MentalState.Calmness > 0.0f)
-        {
-            // Moderate calmness, some fuzziness
-            direction = (Target.position - transform.position).normalized;
             direction += new Vector3(
-                UnityEngine.Random.Range(-0.1f, 0.1f),
-                UnityEngine.Random.Range(-0.1f, 0.1f),
-                UnityEngine.Random.Range(-0.1f, 0.1f)
+                UnityEngine.Random.Range(-fuzziness, fuzziness),
+                UnityEngine.Random.Range(-fuzziness, fuzziness),
+                UnityEngine.Random.Range(-fuzziness, fuzziness)
             );
-            direction.Normalize();
-        }
-        else if (_entityProfile.MentalState.Calmness > -0.25f)
-        {
-            // Moderate calmness, some fuzziness
-            direction = (Target.position - transform.position).normalized;
-            direction += new Vector3(
-                UnityEngine.Random.Range(-0.25f, 0.25f),
-                UnityEngine.Random.Range(-0.25f, 0.25f),
-                UnityEngine.Random.Range(-0.25f, 0.25f)
-            );
-            direction.Normalize();
-        }
-        else
-        {
-            // Low calmness, high fuzziness
-            direction = (Target.position - transform.position).normalized;
-            direction += new Vector3(
-                UnityEngine.Random.Range(-0.7f, 0.7f),
-                UnityEngine.Random.Range(-0.7f, 0.7f),
-                UnityEngine.Random.Range(-0.7f, 0.7f)
-            );
+
             direction.Normalize();
         }
 

@@ -127,7 +127,7 @@ public class Pistol1Entity : ItemEntity
 
         // purposely recalculate `npcOwner` since the target can change between shots
         BaseNPC? npcOwner = this.OwnerEntity as BaseNPC;
-        return npcOwner!.DirectionToTarget();
+        return npcOwner!.DirectionToTarget(true);
     }
 
     void Shoot()
