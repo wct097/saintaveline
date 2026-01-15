@@ -36,18 +36,16 @@ public class NPCDeathState : NPCState
         // Nothing to do in the death state
     }
 
-    private float _delayBeforeFade = 10f;   // AI: Seconds to wait before starting fade
-    private float _stateTimer = 0f;         // AI: Tracks time in this state
-    private bool _fadeStarted = false;      // AI: Ensures fade starts once
-    private float _fadeDuration = 2f;       // AI: Fade duration
+    private float _stateTimer = 0f;
+    private bool _fadeStarted = false;
 
     public override NPCStateReturnValue? Update()
     {
-        _stateTimer += Time.deltaTime;                                 // AI: Accumulate time
+        _stateTimer += Time.deltaTime;
 
-        if (!_fadeStarted && _stateTimer >= _delayBeforeFade)
+        if (!_fadeStarted && _stateTimer >= this.NPC!.deathFadeDelay)
         {
-            _fadeStarted = true;                                      // AI: Prevent multiple starts
+            _fadeStarted = true;
             this.NPC!.StartCoroutine(FadeOutAndDestroy());
         }
 
@@ -56,10 +54,12 @@ public class NPCDeathState : NPCState
 
     private IEnumerator FadeOutAndDestroy()
     {
-        var renderer = this.NPC!.GetComponentInChildren<Renderer>();
+        var renderer = this.NPC!.Renderer;
+        var fadeDuration = this.NPC!.deathFadeDuration;
+
         if (renderer == null)
         {
-            yield return new WaitForSeconds(_fadeDuration);
+            yield return new WaitForSeconds(fadeDuration);
             UnityEngine.Object.Destroy(NPC.gameObject);
             yield break;
         }
@@ -78,10 +78,10 @@ public class NPCDeathState : NPCState
 
         float elapsed = 0f;
 
-        while (elapsed < _fadeDuration)
+        while (elapsed < fadeDuration)
         {
-            elapsed += Time.deltaTime; // AI: Accumulate fade time
-            float alpha = Mathf.Lerp(originalColor.a, 0f, elapsed / _fadeDuration);
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(originalColor.a, 0f, elapsed / fadeDuration);
             var c = originalColor;
             c.a = alpha;
             material.color = c;

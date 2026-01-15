@@ -29,6 +29,9 @@ public class BaseNPC : CharacterEntity, IHearingSensor
         set => _animator = value;
     }
 
+    private Renderer? _renderer;
+    public Renderer? Renderer => _renderer;
+
     [SerializeField]
     [Tooltip("The rate at which the NPC rotates towards the target")]
     public float rotationSpeed = 90f;
@@ -44,6 +47,14 @@ public class BaseNPC : CharacterEntity, IHearingSensor
     [SerializeField]
     [Tooltip("The distance at which the NPC will stop moving towards the target")]
     public float stopDistance = 1f;
+
+    [SerializeField]
+    [Tooltip("Seconds to wait after death before starting fade")]
+    public float deathFadeDelay = 10f;
+
+    [SerializeField]
+    [Tooltip("Duration of the fade-out effect in seconds")]
+    public float deathFadeDuration = 2f;
 
     // The target the NPC is interested in (e.g., the NPC this object is attacking)
     public Transform Target = null!; 
@@ -103,6 +114,7 @@ public class BaseNPC : CharacterEntity, IHearingSensor
     {
         _animator = GetComponent<Animator>();
         _audioSource = GetComponent<AudioSource>();
+        _renderer = GetComponentInChildren<Renderer>();
     }
 
     public void Panic()
