@@ -56,7 +56,15 @@ public class NPCDeathState : NPCState
 
     private IEnumerator FadeOutAndDestroy()
     {
-        var renderer = this.NPC!.GetComponent<MeshRenderer>();
+        // Use base Renderer class to find SkinnedMeshRenderer or MeshRenderer
+        var renderer = this.NPC!.GetComponentInChildren<Renderer>();
+        if (renderer == null)
+        {
+            yield return new WaitForSeconds(_fadeDuration);
+            UnityEngine.Object.Destroy(NPC.gameObject);
+            yield break;
+        }
+
         var material = renderer.material;
         var originalColor = material.color;
 
