@@ -51,13 +51,33 @@ public class NPCDeathState : NPCState
             this.NPC!.StartCoroutine(FadeOutAndDestroy());
         }
 
+        // DIAGNOSTIC: Log every 5 seconds after fade should have completed to show
+        // that dead NPCs remain in scene when the fade coroutine crashes
+        if (_fadeStarted && _stateTimer > _delayBeforeFade + _fadeDuration + 5f)
+        {
+            if (Mathf.FloorToInt(_stateTimer) % 5 == 0 && Time.frameCount % 60 == 0)
+            {
+                Debug.LogWarning($"[BUG DEMO] {NPC?.name ?? "Unknown"} is STILL in scene! " +
+                    $"Time in death state: {_stateTimer:F0}s. This NPC was never destroyed.");
+            }
+        }
+
         return null;
     }
 
     private IEnumerator FadeOutAndDestroy()
     {
+        // DIAGNOSTIC: This demonstrates the bug - animated NPCs use SkinnedMeshRenderer,
+        // not MeshRenderer. When GetComponent returns null, the next line throws
+        // MissingComponentException. The coroutine crashes, NPC never gets destroyed,
+        // and accumulates in the scene consuming resources.
         var renderer = this.NPC!.GetComponent<MeshRenderer>();
-        var material = renderer.material;
+        if (renderer == null)
+        {
+            Debug.LogError($"[BUG DEMO] {NPC.name}: MeshRenderer is NULL! NPC will never be destroyed. " +
+                "This is the bug - animated NPCs use SkinnedMeshRenderer, not MeshRenderer.");
+        }
+        var material = renderer.material;  // This line throws MissingComponentException
         var originalColor = material.color;
 
         material.SetOverrideTag("RenderType", "Transparent");
