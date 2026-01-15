@@ -122,12 +122,21 @@ public class Pistol1Entity : ItemEntity
 
     void Shoot()
     {
-        Assert.IsNotNull(this.OwnerEntity, "Pistol1Entity.GetFireDirection: OwnerEntity is null.");
-        Assert.IsNotNull(this.OwnerEntity as BaseNPC, "Pistol1Entity.GetFireDirection: OwnerEntity is not a CharacterEntity.");
+        Assert.IsNotNull(this.OwnerEntity, "Pistol1Entity.Shoot: OwnerEntity is null.");
 
-        // purposely recalculate `npcOwner` since the target can change between shots
+        // Get fire direction based on owner type
+        Vector3 direction;
         BaseNPC? npcOwner = this.OwnerEntity as BaseNPC;
-        Vector3 direction = npcOwner!.DirectionToTarget(true);
+        if (npcOwner != null)
+        {
+            // NPC: aim at their target
+            direction = npcOwner.DirectionToTarget(true);
+        }
+        else
+        {
+            // Player: aim where the camera is looking
+            direction = _mainCamera!.transform.forward;
+        }
 
         if (Physics.Raycast(_firePoint!.position, direction, out RaycastHit hit, _pistolItemData!.FireRange))
         {
