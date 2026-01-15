@@ -2,9 +2,15 @@
 
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Profiling;
 
 public class NPCDeathState : NPCState
 {
+    // DIAGNOSTIC: Track memory and allocations across all dead NPCs
+    private static long _lastMemoryCheck = 0;
+    private static long _baselineMemory = 0;
+    private static int _baselineGCCount = 0;
+
     public NPCDeathState(BaseNPC baseNpc) : base(baseNpc)
     {
         // nothing to do
@@ -57,8 +63,27 @@ public class NPCDeathState : NPCState
         {
             if (Mathf.FloorToInt(_stateTimer) % 5 == 0 && Time.frameCount % 60 == 0)
             {
-                Debug.LogWarning($"[BUG DEMO] {NPC?.name ?? "Unknown"} is STILL in scene! " +
-                    $"Time in death state: {_stateTimer:F0}s. This NPC was never destroyed.");
+                long currentMemory = Profiler.GetTotalAllocatedMemoryLong();
+                if (_baselineMemory == 0)
+                {
+                    _baselineMemory = currentMemory;
+                    _baselineGCCount = System.GC.CollectionCount(0);
+                }
+                long delta = currentMemory - _lastMemoryCheck;
+                long totalGrowth = currentMemory - _baselineMemory;
+                _lastMemoryCheck = currentMemory;
+
+                // Count objects to show accumulation
+                int npcCount = Object.FindObjectsOfType<BaseNPC>().Length;
+                int gcCollections = System.GC.CollectionCount(0) - _baselineGCCount;
+                long reservedMemory = Profiler.GetTotalReservedMemoryLong();
+                long monoHeap = Profiler.GetMonoHeapSizeLong();
+
+                Debug.LogWarning($"[BUG DEMO] {NPC?.name ?? "Unknown"} STILL in scene! " +
+                    $"Time: {_stateTimer:F0}s | NPCs: {npcCount} | GC: +{gcCollections} | " +
+                    $"Managed: {currentMemory / 1024 / 1024}MB | " +
+                    $"Reserved: {reservedMemory / 1024 / 1024}MB | " +
+                    $"Mono: {monoHeap / 1024 / 1024}MB");
             }
         }
 
